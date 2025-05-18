@@ -15,12 +15,12 @@ steps:
     # If your Dockerfile doesn't need HF_TOKEN, you can remove this.
     # env: ['HF_TOKEN=${_HF_TOKEN}'] 
 
-  # Push the container image to Container Registry
+  # Push the container image to Container Registry in llm-garage project
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/llm-garage/gemma-finetune:latest"]
 
 images:
-  - "gcr.io/${PROJECT_ID}/gemma-finetune:latest"
+  - "gcr.io/llm-garage/gemma-finetune:latest"
 
 # Optional: specify timeout for the build
 # timeout: "1200s"

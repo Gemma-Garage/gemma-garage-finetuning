@@ -8,3 +8,4 @@ bitsandbytes
 google-cloud-aiplatform
 gcsfs
 tensorboard
+markupsafe==2.0.1
