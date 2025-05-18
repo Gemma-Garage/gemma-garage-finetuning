@@ -21,7 +21,7 @@ import asyncio
 import time
 from transformers import TrainerCallback
 
-
+#path
 WEIGHTS_PATH = './weights/weights.pth'
 
 class WebSocketCallback(TrainerCallback):
