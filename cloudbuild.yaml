@@ -1,0 +1,26 @@
+steps:
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: [
+        "build", 
+        "-t", "gcr.io/gemma-garage/gemma-finetune:latest",
+        "--build-arg",
+        "HF_TOKEN=$_HF_TOKEN",
+        "."
+      ]
+    # Pass the Hugging Face token as a build argument
+    # You'll need to set this as a substitution variable when running the build
+    # or configure it in your Cloud Build trigger.
+    # Example: --substitutions=_HF_TOKEN=your_hf_token_here
+    # If your Dockerfile doesn't need HF_TOKEN, you can remove this.
+    # env: ['HF_TOKEN=${_HF_TOKEN}'] 
+
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/gemma-garage/gemma-finetune:latest"]
+
+images:
+  - "gcr.io/${PROJECT_ID}/gemma-finetune:latest"
+
+# Optional: specify timeout for the build
+# timeout: "1200s"
