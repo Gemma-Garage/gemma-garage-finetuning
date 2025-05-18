@@ -17,7 +17,7 @@ steps:
 
   # Push the container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/gemma-garage/gemma-finetune:latest"]
+    args: ["push", "gcr.io/llm--garage/gemma-finetune:latest"]
 
 images:
   - "gcr.io/${PROJECT_ID}/gemma-finetune:latest"
