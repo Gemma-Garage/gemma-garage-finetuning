@@ -3,7 +3,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: [
         "build", 
-        "-t", "gcr.io/gemma-garage/gemma-finetune:latest",
+        "-t", "gcr.io/llm-garage/gemma-finetune:latest",
         "--build-arg",
         "HF_TOKEN=$_HF_TOKEN",
         "."

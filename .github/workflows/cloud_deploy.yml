@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: 'gemma-garage' # Matches your cloudbuild.yaml and vertexai.py
+  PROJECT_ID: 'llm-garage' # Matches your cloudbuild.yaml and vertexai.py
   REGION: 'us-central1'    # Matches your vertexai.py
 
 jobs:
