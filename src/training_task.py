@@ -54,7 +54,7 @@ def main():
 
     print("Setting up LoRA fine-tuning...")
     engine.set_lora_fine_tuning(
-        dataset_path=args.dataset, 
+        dataset=args.dataset, 
         learning_rate=args.learning_rate,
         epochs=args.epochs,
         lora_rank=args.lora_rank,
