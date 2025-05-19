@@ -63,6 +63,8 @@ class FineTuningEngine:
         self.websocket = websocket
         self.model = self.create_model(self.model_name)
         self.weights_path = WEIGHTS_PATH
+        self.output_dir_for_results = None  # Initialize output directory
+        self.tokenizer = None  # To store the tokenizer
 
     def set_websocket(self, websocket):
         self.websocket = websocket
@@ -78,13 +80,14 @@ class FineTuningEngine:
                              learning_rate=2e-4, 
                              epochs=1, 
                              lora_rank=4,
-                             output_dir_for_results=None,
+                             output_dir_for_results=None,  # This will be the GCS path
                              callback_loop=None):
         # if dataset is None:
         #     ccdv_dataset = "King-Harry/NinjaMasker-PII-Redaction-Dataset"
         #     dataset = load_dataset(ccdv_dataset, split="train", trust_remote_code=True)
         #     self.dataset = dataset
         dataset = load_dataset("json", data_files=dataset_path, split="train")
+        self.output_dir_for_results = output_dir_for_results # Store the GCS path
 
         peft_params = LoraConfig(
         lora_alpha=16,
@@ -95,12 +98,12 @@ class FineTuningEngine:
         task_type="CAUSAL_LM",
         )
 
-        tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
-        tokenizer.pad_token = tokenizer.eos_token
-        tokenizer.padding_side = "right"
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True) # Assign to self.tokenizer
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.padding_side = "right"
 
         training_params = TrainingArguments(
-        output_dir="./results",
+        output_dir=self.output_dir_for_results, # Use the GCS path here
         num_train_epochs=epochs,
         per_device_train_batch_size=1,
         gradient_accumulation_steps=1,
@@ -124,7 +127,7 @@ class FineTuningEngine:
         model=self.model,
         train_dataset=dataset,
         peft_config=peft_params,
-        #tokenizer=tokenizer,
+        #tokenizer=self.tokenizer, # Pass the tokenizer
         args=training_params,
         #callbacks=[WebSocketCallback(self.websocket, callback_loop)]  # Add the custom callback here
         )
@@ -136,13 +139,23 @@ class FineTuningEngine:
         if self.trainer is None:
             raise Exception("Error! You must create trainer before fine tuning")
         
+        print(f"Starting training. Model outputs (adapters, tokenizer, checkpoints) will be saved to: {self.trainer.args.output_dir}")
         self.trainer.train()
-        self.trainer.model.merge_and_unload()
-        #self.model.save_pretrained(self.weights_path)
-        #save weights
-        torch.save(self.trainer.model.state_dict(), self.weights_path)
-        #self.trainer.model.save_pretrained(self.weights_path)
+        # SFTTrainer automatically saves the LoRA adapters and tokenizer to the output_dir
+        # specified in TrainingArguments during and after training.
 
+        # The old method of saving the full state dict to a local path:
+        # self.trainer.model.merge_and_unload()
+        # torch.save(self.trainer.model.state_dict(), self.weights_path)
+        
+        # If you want to ensure a final save of the model adapters and tokenizer explicitly (usually redundant if save_steps > 0 or training completes):
+        if self.output_dir_for_results:
+            print(f"Ensuring final model adapters and tokenizer are saved to {self.output_dir_for_results}")
+            self.trainer.save_model(self.output_dir_for_results) # Saves PEFT model (adapters)
+            if self.tokenizer:
+                self.tokenizer.save_pretrained(self.output_dir_for_results)
+        
+        print(f"Training finished. Outputs should be in {self.output_dir_for_results}")
 
 
     def create_model(self, model_name:str="princeton-nlp/Sheared-LLaMA-1.3B"):
@@ -155,4 +168,3 @@ class FineTuningEngine:
         model.config.use_cache = False
         model.config.pretraining_tp = 1
         return model
-    
