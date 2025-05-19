@@ -1,10 +1,13 @@
-FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime
+FROM pytorch/pytorch:2.0.1-cuda11.8-cudnn8-runtime
 
 # Declare the Hugging Face token build argument
 ARG HF_TOKEN
 
 # Set the Hugging Face token as an environment variable
 ENV HUGGING_FACE_HUB_TOKEN=$HF_TOKEN
+
+# Install build-essential for C compilers
+RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
