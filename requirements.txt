@@ -9,3 +9,4 @@ google-cloud-aiplatform
 gcsfs
 tensorboard
 markupsafe==2.0.1
+torchvision --index-url https://download.pytorch.org/whl/cu118
