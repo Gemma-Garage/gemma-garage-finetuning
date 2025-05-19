@@ -26,7 +26,7 @@ def main():
     # Initialize FineTuningEngine
     # The WebSocketCallback in FineTuningEngine will not work as is in Vertex AI.
     # Pass None for websocket and callback_loop, or adapt/remove the callback in FineTuningEngine.
-    engine = FineTuningEngine(model_name=args.model_name, websocket=None, dataset_path=args.dataset)
+    engine = FineTuningEngine(model_name=args.model_name, websocket=None)
 
     # Modify FineTuningEngine to accept dataset_path in set_lora_fine_tuning
     # and use it directly with load_dataset.
@@ -54,7 +54,7 @@ def main():
 
     print("Setting up LoRA fine-tuning...")
     engine.set_lora_fine_tuning(
-        dataset=args.dataset, 
+        dataset_path=args.dataset, 
         learning_rate=args.learning_rate,
         epochs=args.epochs,
         lora_rank=args.lora_rank,

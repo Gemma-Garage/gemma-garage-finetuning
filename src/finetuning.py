@@ -56,14 +56,13 @@ class WebSocketCallback(TrainerCallback):
 
 class FineTuningEngine:
 
-    def __init__(self, model_name, websocket, dataset_path=None):
+    def __init__(self, model_name, websocket):
         self.datasets = []
         self.model_name = model_name
         self.trainer = None
         self.websocket = websocket
         self.model = self.create_model(self.model_name)
         self.weights_path = WEIGHTS_PATH
-        self.dataset = load_dataset("json", data_files=dataset_path, split="train")
 
     def set_websocket(self, websocket):
         self.websocket = websocket
@@ -74,12 +73,18 @@ class FineTuningEngine:
         self.datasets.append(dataset)
         return dataset
 
-    def set_lora_fine_tuning(self, dataset=None, learning_rate=2e-4, epochs=1, lora_rank=4, callback_loop=None):
+    def set_lora_fine_tuning(self, 
+                             dataset_path=None, 
+                             learning_rate=2e-4, 
+                             epochs=1, 
+                             lora_rank=4,
+                             output_dir_for_results=None,
+                             callback_loop=None):
         # if dataset is None:
         #     ccdv_dataset = "King-Harry/NinjaMasker-PII-Redaction-Dataset"
         #     dataset = load_dataset(ccdv_dataset, split="train", trust_remote_code=True)
         #     self.dataset = dataset
-        dataset = self.dataset
+        dataset = load_dataset("json", data_files=dataset_path, split="train")
 
         peft_params = LoraConfig(
         lora_alpha=16,
