@@ -1,6 +1,6 @@
 datasets
 transformers
-trl
+trl>=0.8.0
 peft
 torch --index-url https://download.pytorch.org/whl/cu118
 accelerate
