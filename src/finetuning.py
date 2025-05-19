@@ -124,7 +124,7 @@ class FineTuningEngine:
         model=self.model,
         train_dataset=dataset,
         peft_config=peft_params,
-        tokenizer=tokenizer,
+        #tokenizer=tokenizer,
         args=training_params,
         #callbacks=[WebSocketCallback(self.websocket, callback_loop)]  # Add the custom callback here
         )
