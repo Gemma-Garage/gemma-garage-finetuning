@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.0.1-cuda11.8-cudnn8-runtime
+FROM pytorch/pytorch:2.1.2-cuda11.8-cudnn8-runtime
 
 # Declare the Hugging Face token build argument
 ARG HF_TOKEN
