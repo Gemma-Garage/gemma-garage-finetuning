@@ -105,22 +105,25 @@ class FineTuningEngine:
         training_params = TrainingArguments(
         output_dir=self.output_dir_for_results, # Use the GCS path here
         num_train_epochs=epochs,
-        per_device_train_batch_size=1,
+        per_device_train_batch_size=1, # Consider increasing if your GPU memory allows
         gradient_accumulation_steps=1,
         optim="adamw_torch",
-        save_steps=25,
-        logging_steps=1,
+        save_strategy="steps", # Explicitly set save strategy
+        save_steps=25, # How often to save checkpoints
+        logging_strategy="steps", # Explicitly set logging strategy
+        logging_steps=1,          # Log metrics every step
+        logging_first_step=True,  # Log metrics at the very first step
         learning_rate=learning_rate,
         weight_decay=0.001,
-        fp16=False,
-        bf16=False,
+        fp16=False, # Set to True if using mixed precision (requires NVIDIA Apex or PyTorch >= 1.6)
+        bf16=False, # Set to True if using bfloat16 (requires Ampere or newer GPUs and PyTorch >= 1.10)
         max_grad_norm=0.3,
         max_steps=-1,
         warmup_ratio=0.03,
         group_by_length=True,
         lr_scheduler_type="constant",
-        report_to="tensorboard",
-        per_device_eval_batch_size =8
+        report_to="tensorboard", # You can also add "wandb" or "mlflow" if you use them
+        # per_device_eval_batch_size =8 # Only if you have an eval_dataset
         )
 
         trainer = SFTTrainer(

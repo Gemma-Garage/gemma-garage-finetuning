@@ -6,7 +6,7 @@ from google.cloud import aiplatform
 # Ensure these bucket names are created in your 'llm-garage' project
 NEW_STAGING_BUCKET = "gs://llm-garage-vertex-staging" # Example, choose a unique name
 NEW_DATA_BUCKET = "gs://llm-garage-datasets"         # Example, choose a unique name
-NEW_MODEL_OUTPUT_BUCKET = "gs://llm-garage-models"   # Example, choose a unique name
+NEW_MODEL_OUTPUT_BUCKET = "gs://llm-garage-models/gemma-peft-vertex-output" #"gs://llm-garage-models"   # Example, choose a unique name
 
 aiplatform.init(project="llm-garage", 
                 location="us-central1",
@@ -22,7 +22,7 @@ job = aiplatform.CustomContainerTrainingJob(
 # Arguments for your training_task.py script
 training_args = [
     f"--dataset={NEW_DATA_BUCKET}/questions.json",         # GCS path to your data in llm-garage
-    f"--output_dir={NEW_MODEL_OUTPUT_BUCKET}/gemma-peft", # GCS path for output in llm-garage
+    f"--output_dir={NEW_MODEL_OUTPUT_BUCKET}/model/", # GCS path for output in llm-garage
     "--model_name=google/gemma-3-1b-it", # Or your desired model, updated to a valid gemma model
     "--epochs=1",                   # Example
     "--learning_rate=0.0002",       # Example
@@ -32,7 +32,7 @@ training_args = [
 
 # Define the machine type and accelerators for the training job
 job.run(
-    base_output_dir=f"{NEW_MODEL_OUTPUT_BUCKET}/gemma-peft-vertex-output", # Vertex AI specific outputs in llm-garage
+    base_output_dir=f"{NEW_MODEL_OUTPUT_BUCKET}", # Vertex AI specific outputs in llm-garage
     machine_type="n1-standard-8",
     accelerator_type="NVIDIA_TESLA_T4",
     accelerator_count=1,
