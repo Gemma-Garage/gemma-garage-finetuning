@@ -1,10 +1,18 @@
 FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime
 
+# Declare the Hugging Face token build argument
+ARG HF_TOKEN
+
+# Set the Hugging Face token as an environment variable
+ENV HUGGING_FACE_HUB_TOKEN=$HF_TOKEN
+
 WORKDIR /app
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN huggingface-cli login --token ${HF_TOKEN}  
 
 # Copy the finetuning logic and the new training task script
 COPY src/finetuning.py .
