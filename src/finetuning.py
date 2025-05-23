@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader
 from datasets import load_dataset
 import torch
 import asyncio
+from google.cloud import logging as cloud_logging
 
 
 import asyncio
@@ -24,12 +25,28 @@ from transformers import TrainerCallback
 #path
 WEIGHTS_PATH = './weights/weights.pth'
 
+class CloudLoggingCallback(TrainerCallback):
+    def __init__(self, cloud_logger):
+        self.cloud_logger = cloud_logger
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None:
+            # Format logs as a string, or just convert dict to string
+            log_msg = str(logs)
+            try:
+                self.cloud_logger.log_text(log_msg)
+            except Exception as e:
+                print(f"Failed to log to cloud: {e}")
+        return control
+
 class WebSocketCallback(TrainerCallback):
     def __init__(self, websocket, loop):
         self.websocket = websocket
         self.loop = loop  # Main event loop
         self.last_update = time.time()
         asyncio.create_task(self._check_for_updates())
+        self.cloud_logger_client = cloud_logging.Client()
+        self.cloud_logger = self.cloud_logger_client.logger("gemma-finetune-logs")
 
     async def _check_for_updates(self):
         while True:
@@ -126,6 +143,9 @@ class FineTuningEngine:
         # per_device_eval_batch_size =8 # Only if you have an eval_dataset
         )
 
+        callbacks = [CloudLoggingCallback(self.cloud_logger)]
+
+
         trainer = SFTTrainer(
         model=self.model,
         train_dataset=dataset,
@@ -133,6 +153,7 @@ class FineTuningEngine:
         #tokenizer=self.tokenizer, # Pass the tokenizer
         args=training_params,
         #callbacks=[WebSocketCallback(self.websocket, callback_loop)]  # Add the custom callback here
+        callbacks=callbacks,  # Add the custom callback here
         )
 
         self.trainer = trainer

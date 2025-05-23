@@ -1,5 +1,6 @@
 import time # Added for polling
 from google.cloud import aiplatform, logging as cloud_logging
+from google.cloud import logging_v2
 from google.cloud.aiplatform import CustomJob
 #from google.cloud.aiplatform.gapic.schema.trainingjob import definition_v1
 from datetime import datetime, timezone
@@ -53,6 +54,36 @@ job.run(
 
 job_id = None
 
+def get_logs(job_id):
+    client = logging_v2.Client(project="llm-garage")
+
+    # Construct the log filter
+    log_filter = f'resource.labels.job_id="{job_id}"'
+
+    # Fetch log entries matching the filter
+    entries = client.list_entries(filter_=log_filter)
+
+    print(f"Logs for job ID {job_id}:\n")
+
+    # Iterate through log entries and print them
+    for entry in entries:
+        print("=" * 80)
+        print(f"Timestamp: {entry.timestamp}")
+        print(f"Log Name : {entry.log_name}")
+        print(f"Severity : {entry.severity}")
+
+        # Print payload depending on type
+        if entry.payload_type == "jsonPayload":
+            print("Payload (JSON):")
+            print(entry.payload)
+        elif entry.payload_type == "textPayload":
+            print("Payload (Text):")
+            print(entry.payload)
+        else:
+            print("Payload (Proto):")
+            print(entry.payload)
+
+
 while True:
     # Check the job status
     try:
@@ -64,6 +95,10 @@ while True:
         time.sleep(10)
 
 print(f"Job id: {job_id}")
+
+while True:
+    get_logs(job_id)
+    time.sleep(10)  # Poll every 10 seconds
 
 PROJECT_ID = "llm-garage" 
 
