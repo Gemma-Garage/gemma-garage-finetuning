@@ -34,10 +34,11 @@ class CloudLoggingCallback(TrainerCallback):
             log_msg = str(logs)
             try:
                 self.cloud_logger.log_text(log_msg, severity="INFO")
+                print("logged!")
             except Exception as e:
                 print(f"Cloud log failed: {e}")
-            finally:
-                self.cloud_logger_client.logger("gemma-finetune-logs").flush()  # <-- Force flush
+            # finally:
+            #     self.cloud_logger_client.logger("gemma-finetune-logs").flush()  # <-- Force flush
         return control
 
 class WebSocketCallback(TrainerCallback):
