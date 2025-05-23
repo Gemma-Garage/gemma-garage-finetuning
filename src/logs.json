@@ -1,0 +1,226 @@
+[
+  {
+    "insertId": "geze9ieaybyd",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:43.674862255Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "test_log",
+    "timestamp": "2025-05-23T12:18:43.674862255Z"
+  },
+  {
+    "insertId": "mii9fceagocw",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:43.485585285Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "{'train_runtime': 20.5236, 'train_samples_per_second': 0.146, 'train_steps_per_second': 0.146, 'total_flos': 289083283200.0, 'train_loss': 3.455774466196696, 'epoch': 1.0}",
+    "timestamp": "2025-05-23T12:18:43.485585285Z"
+  },
+  {
+    "insertId": "152e68xe9jsy7",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:41.500024822Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "test_log",
+    "timestamp": "2025-05-23T12:18:41.500024822Z"
+  },
+  {
+    "insertId": "pa0vkxe9dmtj",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:41.415964771Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "{'loss': 3.9068, 'grad_norm': 5.17531156539917, 'learning_rate': 0.0002, 'num_tokens': 69.0, 'mean_token_accuracy': 0.4545454680919647, 'epoch': 1.0}",
+    "timestamp": "2025-05-23T12:18:41.415964771Z"
+  },
+  {
+    "insertId": "ujq4lde9muh6",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:36.982496080Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "test_log",
+    "timestamp": "2025-05-23T12:18:36.982496080Z"
+  },
+  {
+    "insertId": "bpvik9e97bpa",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:36.885123290Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "{'loss': 3.2984, 'grad_norm': 5.305395603179932, 'learning_rate': 0.0002, 'num_tokens': 46.0, 'mean_token_accuracy': 0.5714285969734192, 'epoch': 0.6666666666666666}",
+    "timestamp": "2025-05-23T12:18:36.885123290Z"
+  },
+  {
+    "insertId": "rhncjee9rsod",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:23.727213356Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "test_log",
+    "timestamp": "2025-05-23T12:18:23.727213356Z"
+  },
+  {
+    "insertId": "1tin5jaeazc2g",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:23.600521786Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "{'loss': 3.1621, 'grad_norm': 4.804863452911377, 'learning_rate': 0.0002, 'num_tokens': 24.0, 'mean_token_accuracy': 0.6086956262588501, 'epoch': 0.3333333333333333}",
+    "timestamp": "2025-05-23T12:18:23.600521786Z"
+  },
+  {
+    "insertId": "crk4afeapx3b",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:06.038968802Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "textPayload": "This is a test log from python",
+    "timestamp": "2025-05-23T12:18:06.038968802Z"
+  },
+  {
+    "insertId": "crk4afeapx3a",
+    "jsonPayload": {
+      "logging.googleapis.com/diagnostic": {
+        "instrumentation_source": [
+          {
+            "name": "python",
+            "version": "3.12.1"
+          }
+        ]
+      }
+    },
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T12:18:06.038968802Z",
+    "resource": {
+      "labels": {
+        "cluster_name": "cml-0519-171603-9bae",
+        "container_name": "",
+        "location": "us-central1",
+        "namespace_name": "",
+        "pod_name": "",
+        "project_id": "bae8c5e2f5ac06ff0-tp"
+      },
+      "type": "k8s_container"
+    },
+    "timestamp": "2025-05-23T12:18:06.038968802Z"
+  },
+  {
+    "insertId": "1amudmyeobs3f",
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T02:10:32.709511319Z",
+    "resource": {
+      "labels": {
+        "project_id": "llm-garage"
+      },
+      "type": "global"
+    },
+    "textPayload": "This is a test log from python",
+    "timestamp": "2025-05-23T02:10:32.709511319Z"
+  },
+  {
+    "insertId": "1amudmyeobs3e",
+    "jsonPayload": {
+      "logging.googleapis.com/diagnostic": {
+        "instrumentation_source": [
+          {
+            "name": "python",
+            "version": "3.12.1"
+          }
+        ]
+      }
+    },
+    "logName": "projects/llm-garage/logs/gemma-finetune-logs",
+    "receiveTimestamp": "2025-05-23T02:10:32.709511319Z",
+    "resource": {
+      "labels": {
+        "project_id": "llm-garage"
+      },
+      "type": "global"
+    },
+    "timestamp": "2025-05-23T02:10:32.709511319Z"
+  }
+]
