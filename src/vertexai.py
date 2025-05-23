@@ -47,35 +47,35 @@ job.run(
     accelerator_count=1,
     args=training_args,
     replica_count=1,
-    sync=False
+    sync=True
     # service_account="YOUR_VERTEX_AI_CUSTOM_SERVICE_ACCOUNT@YOUR_PROJECT_ID.iam.gserviceaccount.com" # Optional: if needed
 )
 
-job_id = None
+# job_id = None
 
-while True:
-    # Check the job status
-    try:
-        job_resource_name = job.resource_name
-        job_id = job_resource_name.split("/")[-1]
-        break
-    except Exception as e:
-        print(f"Error checking job id: {e}")
-        time.sleep(10)
-
-print(f"Job id: {job_id}")
-
-PROJECT_ID = "llm-garage" 
-
-# time.sleep(10)  # Wait for a few seconds before checking the job status
-# # If you still have `job` from run(sync=False), use it directly
 # while True:
-#     job._sync_gca_resource()  # Refresh the state of the job from Vertex AI
-#     state = job.state
-#     print(f"Custom job state: {state.name}")
-
-#     if state.name in ("PIPELINE_STATE_RUNNING", "PIPELINE_STATE_SUCCEEDED", "JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED"):
-#         print(f"Training job completed with state: {state.name}")
+#     # Check the job status
+#     try:
+#         job_resource_name = job.resource_name
+#         job_id = job_resource_name.split("/")[-1]
 #         break
+#     except Exception as e:
+#         print(f"Error checking job id: {e}")
+#         time.sleep(10)
 
-#     time.sleep(10)
+# print(f"Job id: {job_id}")
+
+# PROJECT_ID = "llm-garage" 
+
+# # time.sleep(10)  # Wait for a few seconds before checking the job status
+# # # If you still have `job` from run(sync=False), use it directly
+# # while True:
+# #     job._sync_gca_resource()  # Refresh the state of the job from Vertex AI
+# #     state = job.state
+# #     print(f"Custom job state: {state.name}")
+
+# #     if state.name in ("PIPELINE_STATE_RUNNING", "PIPELINE_STATE_SUCCEEDED", "JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED"):
+# #         print(f"Training job completed with state: {state.name}")
+# #         break
+
+# #     time.sleep(10)

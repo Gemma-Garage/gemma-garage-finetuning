@@ -45,8 +45,7 @@ class WebSocketCallback(TrainerCallback):
         self.loop = loop  # Main event loop
         self.last_update = time.time()
         asyncio.create_task(self._check_for_updates())
-        self.cloud_logger_client = cloud_logging.Client()
-        self.cloud_logger = self.cloud_logger_client.logger("gemma-finetune-logs")
+    
 
     async def _check_for_updates(self):
         while True:
@@ -82,6 +81,8 @@ class FineTuningEngine:
         self.weights_path = WEIGHTS_PATH
         self.output_dir_for_results = None  # Initialize output directory
         self.tokenizer = None  # To store the tokenizer
+        self.cloud_logger_client = cloud_logging.Client()
+        self.cloud_logger = self.cloud_logger_client.logger("gemma-finetune-logs")
 
     def set_websocket(self, websocket):
         self.websocket = websocket
