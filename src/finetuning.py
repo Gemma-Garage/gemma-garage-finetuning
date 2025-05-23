@@ -32,8 +32,10 @@ class CloudLoggingCallback(TrainerCallback):
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
             log_msg = str(logs)
+            print(f"Logging to cloud: {log_msg}")
             try:
                 self.cloud_logger.log_text(log_msg, severity="INFO")
+                self.cloud_logger.log_text("test_log", severity="INFO")
                 print("logged!")
             except Exception as e:
                 print(f"Cloud log failed: {e}")
