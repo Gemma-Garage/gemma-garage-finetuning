@@ -15,6 +15,8 @@ from torch.utils.data import DataLoader
 from datasets import load_dataset
 import torch
 import asyncio
+import logging
+
 from google.cloud import logging as cloud_logging
 
 
@@ -25,6 +27,8 @@ from transformers import TrainerCallback
 #path
 WEIGHTS_PATH = './weights/weights.pth'
 
+logging.basicConfig(level=logging.INFO)
+
 class CloudLoggingCallback(TrainerCallback):
     def __init__(self, cloud_logger):
         self.cloud_logger = cloud_logger
@@ -34,8 +38,8 @@ class CloudLoggingCallback(TrainerCallback):
             log_msg = str(logs)
             print(f"Logging to cloud: {log_msg}")
             try:
-                self.cloud_logger.log_text(log_msg, severity="INFO")
-                self.cloud_logger.log_text("test_log", severity="INFO")
+                self.cloud_logger.log_text(log_msg)
+                self.cloud_logger.log_text("test_log")
                 print("logged!")
             except Exception as e:
                 print(f"Cloud log failed: {e}")
@@ -85,7 +89,8 @@ class FineTuningEngine:
         self.weights_path = WEIGHTS_PATH
         self.output_dir_for_results = None  # Initialize output directory
         self.tokenizer = None  # To store the tokenizer
-        self.cloud_logger_client = cloud_logging.Client()
+        self.cloud_logger_client = cloud_logging.Client(project="llm-garage")
+        self.cloud_logger_client.setup_logging()
         self.cloud_logger = self.cloud_logger_client.logger("gemma-finetune-logs")
         self.cloud_logger.log_text("This is a test log from python")
 
