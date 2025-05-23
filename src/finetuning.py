@@ -31,12 +31,13 @@ class CloudLoggingCallback(TrainerCallback):
 
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
-            # Format logs as a string, or just convert dict to string
             log_msg = str(logs)
             try:
-                self.cloud_logger.log_text(log_msg)
+                self.cloud_logger.log_text(log_msg, severity="INFO")
             except Exception as e:
-                print(f"Failed to log to cloud: {e}")
+                print(f"Cloud log failed: {e}")
+            finally:
+                self.cloud_logger_client.logger("gemma-finetune-logs").flush()  # <-- Force flush
         return control
 
 class WebSocketCallback(TrainerCallback):
@@ -83,6 +84,7 @@ class FineTuningEngine:
         self.tokenizer = None  # To store the tokenizer
         self.cloud_logger_client = cloud_logging.Client()
         self.cloud_logger = self.cloud_logger_client.logger("gemma-finetune-logs")
+        self.cloud_logger.log_text("This is a test log from python")
 
     def set_websocket(self, websocket):
         self.websocket = websocket
