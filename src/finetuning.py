@@ -152,7 +152,7 @@ class FineTuningEngine:
             model=self.model,
             train_dataset=train_dataset, # Use the loaded dataset
             peft_config=peft_params,
-            tokenizer=self.tokenizer, # Pass the tokenizer
+            #tokenizer=self.tokenizer, # Pass the tokenizer
             args=training_params,
             callbacks=callbacks,
             # dataset_text_field="text", # Specify if your JSON dataset has a different field for text
