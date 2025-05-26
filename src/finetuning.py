@@ -111,7 +111,7 @@ class FineTuningEngine:
         peft_params = LoraConfig(
         lora_alpha=16,
         lora_dropout=0.1,
-        # target_modules=["q_proj", "v_proj"], # Gemma specific might differ, or use default
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"], # Specify target modules for Gemma
         r=lora_rank,
         bias="none",
         task_type="CAUSAL_LM",
