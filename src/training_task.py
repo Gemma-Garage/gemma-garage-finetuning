@@ -65,7 +65,7 @@ def main():
         learning_rate=args.learning_rate,
         epochs=args.epochs,
         lora_rank=args.lora_rank,
-        callback_loop=None, # WebSocket not used in Vertex AI
+        #callback_loop=None, # WebSocket not used in Vertex AI
         # Pass output_dir to be used by save_pretrained within FineTuningEngine
         # This requires modifying FineTuningEngine's set_lora_fine_tuning or __init__
         # For now, assuming finetuning.py is adapted to use args.output_dir for saving.
