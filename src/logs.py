@@ -1,6 +1,15 @@
 import json
 import ast
 
+"""
+gcloud logging read 'logName="projects/llm-garage/logs/gemma-finetune-logs"' \
+  --project=llm-garage \
+  --format=json \
+  --limit=100
+"""
+
+
+# This script is designed to filter logs from a JSON file and extract entries that contain 'loss' in their payload.
 # Load the logs
 with open('logs.json') as f:
     logs = json.load(f)
