@@ -31,7 +31,6 @@ def main():
     # Pass request_id and project_id for custom logging
     engine = FineTuningEngine(
         model_name=args.model_name,
-        websocket=None, # WebSocket not used in Vertex AI
         request_id=args.request_id,
         project_id=args.project_id
     )
