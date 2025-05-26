@@ -11,6 +11,8 @@ def main():
     parser.add_argument('--epochs', type=int, default=1, help='Number of training epochs')
     parser.add_argument('--learning_rate', type=float, default=2e-4, help='Learning rate')
     parser.add_argument('--lora_rank', type=int, default=4, help='LoRA rank')
+    parser.add_argument('--request_id', type=str, required=True, help='Unique request ID for this training job')
+    parser.add_argument('--project_id', type=str, required=True, help='Google Cloud Project ID for logging')
     # Add any other parameters your FineTuningEngine or training process needs
 
     args = parser.parse_args()
@@ -22,11 +24,17 @@ def main():
     print(f"  Epochs: {args.epochs}")
     print(f"  Learning Rate: {args.learning_rate}")
     print(f"  LoRA Rank: {args.lora_rank}")
+    print(f"  Request ID: {args.request_id}")
+    print(f"  Project ID: {args.project_id}")
 
     # Initialize FineTuningEngine
-    # The WebSocketCallback in FineTuningEngine will not work as is in Vertex AI.
-    # Pass None for websocket and callback_loop, or adapt/remove the callback in FineTuningEngine.
-    engine = FineTuningEngine(model_name=args.model_name, websocket=None)
+    # Pass request_id and project_id for custom logging
+    engine = FineTuningEngine(
+        model_name=args.model_name,
+        websocket=None, # WebSocket not used in Vertex AI
+        request_id=args.request_id,
+        project_id=args.project_id
+    )
 
     # Modify FineTuningEngine to accept dataset_path in set_lora_fine_tuning
     # and use it directly with load_dataset.
