@@ -39,11 +39,11 @@ jobs:
           gcloud run deploy ${{ env.SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
             --region ${{ env.REGION }} \
-            --allow-unauthenticated \
             --gpu 1 \
             --gpu-type nvidia-l4 \
             --max-instances 1 \
             --memory 32Gi \
+            --allow-unauthenticated
     
     #Change policy so service is publicly accessible
       - name: 'Set IAM Policy for Cloud Run'
