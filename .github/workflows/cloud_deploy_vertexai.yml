@@ -1,0 +1,37 @@
+# name: 'Build and Push Finetuning Image'
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# env:
+#   PROJECT_ID: 'llm-garage' # Matches your cloudbuild.yaml and vertexai.py
+#   REGION: 'us-central1'    # Matches your vertexai.py
+
+# jobs:
+#   build_and_push:
+#     name: 'Build and Push to GCR'
+#     runs-on: 'ubuntu-latest'
+
+#     permissions:
+#       contents: 'read'
+#       id-token: 'write' # Recommended for google-github-actions/auth, can be used with WIF
+
+#     steps:
+#       - name: 'Checkout'
+#         uses: 'actions/checkout@v4'
+
+#       - name: 'Authenticate to Google Cloud'
+#         uses: 'google-github-actions/auth@v2'
+#         with:
+#           # Ensure this secret is configured in your gemma-garage-finetuning repository settings
+#           credentials_json: '${{ secrets.GCP_CREDENTIALS }}' 
+      
+#       - name: 'Build and Push Docker Image via Cloud Build'
+#         run: |
+#           gcloud builds submit . \
+#             --config cloudbuild.yaml \
+#             --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }} \
+#             --project ${{ env.PROJECT_ID }}
+#         working-directory: ./ # Explicitly set working directory, assuming cloudbuild.yaml is at the root of the repo
