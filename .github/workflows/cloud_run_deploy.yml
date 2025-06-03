@@ -39,6 +39,7 @@ jobs:
           gcloud run deploy ${{ env.SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
             --region ${{ env.REGION }} \
+            --cpu 8 \
             --gpu 1 \
             --gpu-type nvidia-l4 \
             --max-instances 1 \
