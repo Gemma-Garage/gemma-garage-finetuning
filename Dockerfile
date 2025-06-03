@@ -20,6 +20,7 @@ RUN huggingface-cli login --token ${HF_TOKEN}
 # Copy the finetuning logic and the new training task script
 COPY src/finetuning.py .
 COPY src/training_task.py . 
+COPY src/main.py .
 # The vertexai.py (job submission script) is NOT needed inside this container
 
 # Set the Python path if your scripts import each other using relative paths
