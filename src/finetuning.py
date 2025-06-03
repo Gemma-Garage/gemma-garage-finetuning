@@ -19,6 +19,7 @@ import argparse # For command-line arguments
 from datetime import datetime, timezone # For timestamps
 
 from google.cloud import logging as cloud_logging
+import math # For math.floor
 
 
 #path
@@ -31,19 +32,27 @@ class CloudLoggingCallback(TrainerCallback):
 
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs is not None:
-            # Prepare structured log payload
+            current_epoch_val = math.floor(state.epoch)  # 0 for 1st epoch, 1 for 2nd...
+            total_epochs_val = state.num_train_epochs
+
+            # Base payload with progress and status
             log_payload = {
-                "message": f"Training log for {self.request_id}", # General message
                 "request_id": self.request_id,
-                # Ensure standard Hugging Face metrics are captured
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "status_message": f"Training: Epoch {current_epoch_val + 1}/{total_epochs_val}, Step {state.global_step}/{state.max_steps}",
+                "current_step": state.global_step,
+                "total_steps": state.max_steps,
+                "current_epoch": current_epoch_val, # 0-indexed (completed epochs)
+                "total_epochs": total_epochs_val,
                 "loss": logs.get("loss"),
                 "learning_rate": logs.get("learning_rate"),
-                "epoch": logs.get("epoch"),
-                "step": state.global_step, # More reliable step count
-                "timestamp": datetime.now(timezone.utc).isoformat(), # Add current timestamp
-                # Add any other specific metrics from the 'logs' dict if available
-                **{k: v for k, v in logs.items() if k not in ["loss", "learning_rate", "epoch"]}
             }
+
+            # Add any other metrics from the 'logs' dictionary, avoiding overwrite
+            if logs: # Ensure logs is not None
+                for k, v in logs.items():
+                    if k not in log_payload:
+                        log_payload[k] = v
             
             # Remove None values from payload for cleaner logs
             log_payload = {k: v for k, v in log_payload.items() if v is not None}
@@ -78,7 +87,7 @@ class FineTuningEngine:
         
         print(f"FineTuningEngine initialized. Logging to: {self.log_name}")
         self.cloud_logger.log_struct({
-            "message": f"FineTuningEngine initialized for request_id: {self.request_id}",
+            "status_message": "Initializing fine-tuning engine...", # Changed
             "request_id": self.request_id,
             "timestamp": datetime.now(timezone.utc).isoformat()
         }, severity="INFO")
@@ -96,15 +105,31 @@ class FineTuningEngine:
                              epochs=1, 
                              lora_rank=4,
                              output_dir_for_results=None,  # This will be the GCS path for model outputs
-                             # callback_loop=None # Removed
                              ):
         if not dataset_path or not output_dir_for_results:
             raise ValueError("dataset_path and output_dir_for_results must be provided.")
 
+        self.cloud_logger.log_struct({ # Added
+            "status_message": "Configuring LoRA and training arguments...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
+
         print(f"Setting LoRA fine-tuning. Dataset: {dataset_path}, Output GCS: {output_dir_for_results}")
-        # The dataset is loaded by load_new_dataset, or directly here.
-        # For simplicity, let's assume dataset_path is the direct GCS path to the data file.
+        
+        self.cloud_logger.log_struct({ # Added
+            "status_message": f"Loading dataset from GCS path: {dataset_path}...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
+        
         train_dataset = load_dataset("json", data_files=dataset_path, split="train")
+        
+        self.cloud_logger.log_struct({ # Added
+            "status_message": "Dataset loaded successfully.",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
         
         self.output_dir_for_results = output_dir_for_results
 
@@ -120,6 +145,12 @@ class FineTuningEngine:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = "right"
+
+        self.cloud_logger.log_struct({ # Added
+            "status_message": "Tokenizer initialized.",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
 
         training_params = TrainingArguments(
             output_dir=self.output_dir_for_results, # GCS path for model, checkpoints etc.
@@ -150,15 +181,24 @@ class FineTuningEngine:
 
         trainer = SFTTrainer(
             model=self.model,
-            train_dataset=train_dataset, # Use the loaded dataset
+            train_dataset=train_dataset, 
             peft_config=peft_params,
-            #tokenizer=self.tokenizer, # Pass the tokenizer
             args=training_params,
             callbacks=callbacks,
-            # dataset_text_field="text", # Specify if your JSON dataset has a different field for text
         )
         self.trainer = trainer
         print("SFTTrainer initialized.")
+        
+        total_steps_val = self.trainer.state.max_steps
+        total_epochs_val = training_params.num_train_epochs # Or self.trainer.args.num_train_epochs
+        
+        self.cloud_logger.log_struct({ # Added
+            "status_message": "SFTTrainer initialized. Ready for training.",
+            "request_id": self.request_id,
+            "total_steps": total_steps_val,
+            "total_epochs": total_epochs_val,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
 
     def perform_fine_tuning(self, update_callback=None): # update_callback not used
 
@@ -174,12 +214,21 @@ class FineTuningEngine:
         
         print(f"Starting training. Model outputs will be saved to: {self.trainer.args.output_dir}")
         self.cloud_logger.log_struct({
-            "message": f"Starting training. Output GCS: {self.trainer.args.output_dir}",
+            "status_message": f"Starting training. Model outputs will be saved to: {self.trainer.args.output_dir}", # Changed
             "request_id": self.request_id,
+            "total_steps": self.trainer.state.max_steps, # Added
+            "total_epochs": self.trainer.args.num_train_epochs, # Added
             "timestamp": datetime.now(timezone.utc).isoformat()
         }, severity="INFO")
         
         self.trainer.train()
+
+        self.cloud_logger.log_struct({ # Added
+            "status_message": "Training loop completed. Saving model adapters and tokenizer...",
+            "request_id": self.request_id,
+            "output_dir": self.output_dir_for_results,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, severity="INFO")
         
         if self.output_dir_for_results:
             print(f"Ensuring final model adapters and tokenizer are saved to {self.output_dir_for_results}")
@@ -189,10 +238,10 @@ class FineTuningEngine:
         
         print(f"Training finished. Outputs should be in {self.output_dir_for_results}")
         self.cloud_logger.log_struct({
-            "message": f"Training finished. Outputs in {self.output_dir_for_results}",
+            "status_message": f"Training finished. Outputs in {self.output_dir_for_results}", # Changed
             "request_id": self.request_id,
-            "weights_url": self.output_dir_for_results, # Inform backend about output location
-            "status": "complete", # Signal completion
+            "weights_url": self.output_dir_for_results, 
+            "status": "complete", 
             "timestamp": datetime.now(timezone.utc).isoformat()
         }, severity="INFO")
 
