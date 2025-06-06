@@ -86,7 +86,6 @@ class UnslothFineTuningEngine:
         self.model_name = model_name
         self.request_id = request_id # Store request_id
         self.trainer = None
-        self.model = self.create_model(self.model_name)
         # self.weights_path = WEIGHTS_PATH # Less relevant, main output is output_dir_for_results
         self.output_dir_for_results = None
         self.tokenizer = None
@@ -118,7 +117,6 @@ class UnslothFineTuningEngine:
     def train_with_unsloth(
         self,
         dataset_path: str,
-        model_name: str = "unsloth/gemma-3-1b-it", # Default to a Gemma model suitable for Unsloth
         output_dir: str = "outputs",
         lora_r: int = 16,
         lora_alpha: int = 32,
@@ -154,18 +152,14 @@ class UnslothFineTuningEngine:
             save_steps (int): Save checkpoint every X updates steps.
             hf_token (str): Hugging Face API token for private models.
         """
-        print(f"Starting Unsloth fine-tuning for model: {model_name} with dataset: {dataset_path}")
+        print(f"Starting Unsloth fine-tuning for model: {self.model_name} with dataset: {dataset_path}")
 
-        # 1. Load dataset
-        # Assuming the dataset is in a format load_dataset can handle directly (e.g. json, csv)
-        # and has a 'text' field or a field that can be formatted into prompt-response pairs.
-        # You might need a custom formatting_prompts_func if your data is not in a direct "text" column.
-        # For example, if you have 'instruction', 'input', 'output' columns.
+        # Load dataset
         dataset = load_dataset("json", data_files=dataset_path, split="train")
         
-        # 2. Load model and tokenizer
+        # Load model and tokenizer
         model, tokenizer = FastLanguageModel.from_pretrained(
-            model_name = model_name,
+            model_name = self.model_name,
             max_seq_length = MAX_SEQ_LENGTH,
             dtype = DTYPE,
             load_in_4bit = LOAD_IN_4BIT,
@@ -204,9 +198,6 @@ class UnslothFineTuningEngine:
             lr_scheduler_type="linear",
             seed=3407,
             report_to="tensorboard", # or "wandb"
-            # push_to_hub=False, # Set to True if you want to push to Hugging Face Hub
-            # hub_model_id=f"{model_name.split('/')[-1]}-unsloth-finetuned",
-            # hub_token=hf_token, # Token for pushing to hub
         )
 
         callbacks = [CloudLoggingCallback(self.cloud_logger, self.request_id)]
@@ -220,7 +211,7 @@ class UnslothFineTuningEngine:
             args=training_args,
             callbacks=callbacks
         )
-        
+
         print("SFTTrainer initialized.")
         self.cloud_logger.log_struct({
             "status_message": f"Starting training. Model outputs will be saved to: {self.trainer.args.output_dir}", # Changed
