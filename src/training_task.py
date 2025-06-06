@@ -75,7 +75,7 @@ def training_task(dataset,
     engine.train_with_unsloth(
         dataset_path=dataset, 
         learning_rate=learning_rate,
-        epochs=epochs,
+        num_train_epochs=epochs,
         lora_rank=lora_rank,
         output_dir_for_results=output_dir
     ) 

@@ -117,8 +117,8 @@ class UnslothFineTuningEngine:
     def train_with_unsloth(
         self,
         dataset_path: str,
-        output_dir: str = "outputs",
-        lora_r: int = 16,
+        output_dir_for_results: str = "outputs",
+        lora_rank: int = 16,
         lora_alpha: int = 32,
         lora_dropout: float = 0.05,
         lora_target_modules: list = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"], # Gemma 2 specific
@@ -129,7 +129,6 @@ class UnslothFineTuningEngine:
         warmup_steps: int = 10,
         logging_steps: int = 10,
         save_steps: int = 50,
-        hf_token: str = None,
     ):
         """
         Fine-tunes a model using Unsloth with PEFT LoRA.
@@ -170,7 +169,7 @@ class UnslothFineTuningEngine:
 
         model = FastLanguageModel.get_peft_model(
             model,
-            r = lora_r,
+            r = lora_rank,
             target_modules = lora_target_modules,
             lora_alpha = lora_alpha,
             lora_dropout = lora_dropout,
@@ -184,7 +183,7 @@ class UnslothFineTuningEngine:
 
         # 4. Set up TrainingArguments
         training_args = TrainingArguments(
-            output_dir=output_dir,
+            output_dir=output_dir_for_results,
             num_train_epochs=num_train_epochs,
             per_device_train_batch_size=per_device_train_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
@@ -234,7 +233,7 @@ class UnslothFineTuningEngine:
         }, severity="INFO")
 
         # 7. Save the model
-        final_model_path = os.path.join(output_dir, "final_model")
+        final_model_path = os.path.join(output_dir_for_results, "final_model")
         print(f"Saving final LoRA model to {final_model_path}")
         model.save_pretrained(final_model_path) # Saves LoRA adapters
         tokenizer.save_pretrained(final_model_path)
