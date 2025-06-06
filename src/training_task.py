@@ -1,7 +1,8 @@
 import argparse
 import os
 # Ensure finetuning.py is in the same directory (src/) or Python path is set correctly
-from finetuning import FineTuningEngine 
+from finetuning import FineTuningEngine
+from finetuning_unsloth import UnslothFineTuningEngine 
 
 def training_task(dataset,
                   output_dir,
@@ -24,7 +25,7 @@ def training_task(dataset,
 
     # Initialize FineTuningEngine
     # Pass request_id and project_id for custom logging
-    engine = FineTuningEngine(
+    engine = UnslothFineTuningEngine(
         model_name=model_name,
         request_id=request_id,
         project_id=project_id
@@ -54,24 +55,30 @@ def training_task(dataset,
     #       self.trainer.tokenizer.save_pretrained(self.output_dir_for_results)
 
 
-    print("Setting up LoRA fine-tuning...")
-    engine.set_lora_fine_tuning(
+    # print("Setting up LoRA fine-tuning...")
+    # engine.set_lora_fine_tuning(
+    #     dataset_path=dataset, 
+    #     learning_rate=learning_rate,
+    #     epochs=epochs,
+    #     lora_rank=lora_rank,
+    #     #callback_loop=None, # WebSocket not used in Vertex AI
+    #     # Pass output_dir to be used by save_pretrained within FineTuningEngine
+    #     # This requires modifying FineTuningEngine's set_lora_fine_tuning or __init__
+    #     # For now, assuming finetuning.py is adapted to use args.output_dir for saving.
+    #     # A common pattern is for the training_params.output_dir to be set to args.output_dir
+    #     # and then trainer.save_model() will use that.
+    #     output_dir_for_results=output_dir 
+    # )
+    
+    print("Performing fine-tuning...")
+    # Ensure perform_fine_tuning in finetuning.py saves to args.output_dir
+    engine.train_with_unsloth(
         dataset_path=dataset, 
         learning_rate=learning_rate,
         epochs=epochs,
         lora_rank=lora_rank,
-        #callback_loop=None, # WebSocket not used in Vertex AI
-        # Pass output_dir to be used by save_pretrained within FineTuningEngine
-        # This requires modifying FineTuningEngine's set_lora_fine_tuning or __init__
-        # For now, assuming finetuning.py is adapted to use args.output_dir for saving.
-        # A common pattern is for the training_params.output_dir to be set to args.output_dir
-        # and then trainer.save_model() will use that.
-        output_dir_for_results=output_dir 
-    )
-    
-    print("Performing fine-tuning...")
-    # Ensure perform_fine_tuning in finetuning.py saves to args.output_dir
-    engine.perform_fine_tuning() 
+        output_dir_for_results=output_dir
+    ) 
 
     print(f"Training finished. Outputs should be in {output_dir}")
 

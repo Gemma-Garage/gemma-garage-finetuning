@@ -10,6 +10,8 @@ google-cloud-logging
 fastapi==0.115.11
 uvicorn
 gcsfs
+google-cloud-storage
 tensorboard
 markupsafe==2.0.1
 torchvision --index-url https://download.pytorch.org/whl/cu118
+unsloth
