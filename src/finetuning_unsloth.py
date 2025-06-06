@@ -213,7 +213,7 @@ class UnslothFineTuningEngine:
 
         print("SFTTrainer initialized.")
         self.cloud_logger.log_struct({
-            "status_message": f"Starting training. Model outputs will be saved to: {self.trainer.args.output_dir}", # Changed
+            "status_message": f"Starting training. Model outputs will be saved to: {trainer.args.output_dir}", # Changed
             "request_id": self.request_id,
             "total_steps": self.trainer.state.max_steps, # Added
             "total_epochs": self.trainer.args.num_train_epochs, # Added
