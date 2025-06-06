@@ -198,6 +198,7 @@ class UnslothFineTuningEngine:
             lr_scheduler_type="linear",
             seed=3407,
             report_to="tensorboard", # or "wandb"
+            max_seq_length=MAX_SEQ_LENGTH
         )
 
         callbacks = [CloudLoggingCallback(self.cloud_logger, self.request_id)]
@@ -206,7 +207,6 @@ class UnslothFineTuningEngine:
             model=model,
             processing_class=tokenizer,
             train_dataset=dataset,
-            max_seq_length=MAX_SEQ_LENGTH,
             args=training_args,
             callbacks=callbacks
         )
