@@ -82,8 +82,8 @@ def training_task(dataset,
 
     print(f"Training finished. Outputs should be in {output_dir}")
 
-if __name__ == '__main__':
-    training_task()
+# if __name__ == '__main__':
+#     training_task()
 
 
 
