@@ -203,7 +203,7 @@ class UnslothFineTuningEngine:
         # 5. Create SFTTrainer
         trainer = SFTTrainer(
             model=model,
-            tokenizer=tokenizer,
+            processing_class=tokenizer,
             train_dataset=dataset,
             dataset_text_field="text",  # Ensure this matches the output of your formatting function or your dataset's text column
             max_seq_length=MAX_SEQ_LENGTH,
