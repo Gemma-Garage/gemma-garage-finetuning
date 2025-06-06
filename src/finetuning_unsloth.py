@@ -1,5 +1,10 @@
-\
+
 import os
+
+
+#We need this to track training progress and log it to Google Cloud Logging
+os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
+
 import torch
 from datasets import load_dataset
 from transformers import TrainingArguments
