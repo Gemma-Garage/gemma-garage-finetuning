@@ -3,7 +3,7 @@ import os
 import torch
 from datasets import load_dataset
 from transformers import TrainingArguments
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from google.cloud import logging as cloud_logging
 from transformers import (
@@ -182,9 +182,10 @@ class UnslothFineTuningEngine:
         print("PEFT model configured with LoRA.")
 
         # 4. Set up TrainingArguments
-        training_args = TrainingArguments(
+        training_args = SFTConfig(
             output_dir=output_dir_for_results,
             num_train_epochs=num_train_epochs,
+            dataset_text_field="text",  # Ensure this matches the output of your formatting function or your dataset's text column
             per_device_train_batch_size=per_device_train_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
             warmup_steps=warmup_steps,
@@ -205,7 +206,6 @@ class UnslothFineTuningEngine:
             model=model,
             processing_class=tokenizer,
             train_dataset=dataset,
-            dataset_text_field="text",  # Ensure this matches the output of your formatting function or your dataset's text column
             max_seq_length=MAX_SEQ_LENGTH,
             args=training_args,
             callbacks=callbacks
