@@ -215,8 +215,8 @@ class UnslothFineTuningEngine:
         self.cloud_logger.log_struct({
             "status_message": f"Starting training. Model outputs will be saved to: {trainer.args.output_dir}", # Changed
             "request_id": self.request_id,
-            "total_steps": self.trainer.state.max_steps, # Added
-            "total_epochs": self.trainer.args.num_train_epochs, # Added
+            "total_steps": trainer.state.max_steps, # Added
+            "total_epochs": trainer.args.num_train_epochs, # Added
             "timestamp": datetime.now(timezone.utc).isoformat()
         }, severity="INFO")
 
