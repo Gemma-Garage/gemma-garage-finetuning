@@ -1,6 +1,5 @@
 datasets
 transformers
-trl>=0.8.0
 peft
 torch --index-url https://download.pytorch.org/whl/cu118
 accelerate
@@ -15,3 +14,4 @@ tensorboard
 markupsafe==2.0.1
 torchvision --index-url https://download.pytorch.org/whl/cu118
 unsloth
+trl>=0.8.0
