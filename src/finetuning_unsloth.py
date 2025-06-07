@@ -126,7 +126,7 @@ class UnslothFineTuningEngine:
         lora_rank: int = 16,
         lora_alpha: int = 32,
         lora_dropout: float = 0.05,
-        lora_target_modules: list = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"], # Gemma 2 specific
+        lora_target_modules: list = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
         learning_rate: float = 2e-4,
         num_train_epochs: int = 3,
         per_device_train_batch_size: int = 2,
@@ -185,7 +185,7 @@ class UnslothFineTuningEngine:
             loftq_config = None, # And LoftQ
         )
         print("PEFT model configured with LoRA.")
-
+        print(f"train_with_unsloth called with num_train_epochs: {num_train_epochs}")
         # 4. Set up TrainingArguments
         training_args = SFTConfig(
             output_dir=output_dir_for_results,
@@ -218,7 +218,7 @@ class UnslothFineTuningEngine:
 
         print("SFTTrainer initialized.")
         self.cloud_logger.log_struct({
-            "status_message": f"Starting training. Model outputs will be saved to: {trainer.args.output_dir}", # Changed
+            "status_message": f"Starting training. Epochs: {num_train_epochs} Model outputs will be saved to: {trainer.args.output_dir}", # Changed
             "request_id": self.request_id,
             "total_steps": trainer.state.max_steps, # Added
             "total_epochs": trainer.args.num_train_epochs, # Added

@@ -1,17 +1,17 @@
 datasets
-transformers
-peft
-torch --index-url https://download.pytorch.org/whl/cu118
-accelerate
-bitsandbytes
+#transformers
+#peft
+#torch --index-url https://download.pytorch.org/whl/cu118
+#accelerate
+#bitsandbytes
 google-cloud-aiplatform
 google-cloud-logging
 fastapi==0.115.11
 uvicorn
 gcsfs
 google-cloud-storage
-tensorboard
+#tensorboard
 markupsafe==2.0.1
-torchvision --index-url https://download.pytorch.org/whl/cu118
+#torchvision --index-url https://download.pytorch.org/whl/cu118
 unsloth
-trl>=0.8.0
+#trl>=0.8.0
