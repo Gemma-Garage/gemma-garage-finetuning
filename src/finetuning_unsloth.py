@@ -132,7 +132,7 @@ class UnslothFineTuningEngine:
         per_device_train_batch_size: int = 2,
         gradient_accumulation_steps: int = 4,
         warmup_steps: int = 10,
-        logging_steps: int = 10,
+        logging_steps: int = 1,
         save_steps: int = 50,
     ):
         """
