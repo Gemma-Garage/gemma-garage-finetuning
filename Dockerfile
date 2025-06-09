@@ -30,9 +30,9 @@ COPY src/main.py .
 
 # This is the script Vertex AI will execute inside the container.
 # The `args` from your job submission (vertexai.py) will be passed to this script.
-#ENTRYPOINT ["python", "training_task.py"]
+ENTRYPOINT ["python", "training_task.py"]
 
-EXPOSE 8080
+#EXPOSE 8080
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
