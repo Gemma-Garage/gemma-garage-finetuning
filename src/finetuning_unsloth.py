@@ -10,6 +10,8 @@ from datasets import load_dataset
 from transformers import TrainingArguments
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
+from google.cloud import storage
+import tempfile
 from google.cloud import logging as cloud_logging
 from transformers import (
     TrainingArguments,
@@ -43,6 +45,22 @@ LOAD_IN_4BIT = True # Use 4bit quantization to reduce memory usage. Can be False
 #
 # ### Response:
 # {}"""
+
+def upload_to_gcs(local_dir, gcs_path):
+    bucket_name, *blob_path = gcs_path.replace("gs://", "").split("/", 1)
+    blob_path_prefix = blob_path[0] if blob_path else ""
+
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+
+    for root, _, files in os.walk(local_dir):
+        for file in files:
+            full_path = os.path.join(root, file)
+            relative_path = os.path.relpath(full_path, local_dir)
+            blob = bucket.blob(os.path.join(blob_path_prefix, relative_path))
+            blob.upload_from_filename(full_path)
+            print(f"Uploaded {full_path} to gs://{bucket_name}/{blob.name}")
+
 
 class CloudLoggingCallback(TrainerCallback):
     def __init__(self, cloud_logger, request_id: str): # Add request_id for context if needed
@@ -251,7 +269,15 @@ class UnslothFineTuningEngine:
         # 7. Save the model
         final_model_path = os.path.join(output_dir_for_results, "final_model")
         print(f"Saving final LoRA model to {final_model_path}")
-        model.save_pretrained(final_model_path) # Saves LoRA adapters
-        tokenizer.save_pretrained(final_model_path)
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            model.save_pretrained(tmp_dir)
+            tokenizer.save_pretrained(tmp_dir)
+            print(f"Saved locally to: {tmp_dir}")
+
+            # Then upload to GCS
+            upload_to_gcs(tmp_dir, final_model_path)
+                
+        print("Saved models!")
     
 
