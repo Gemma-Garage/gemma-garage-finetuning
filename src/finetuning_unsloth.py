@@ -50,6 +50,7 @@ class CloudLoggingCallback(TrainerCallback):
         self.request_id = request_id
 
     def on_log(self, args, state, control, logs=None, **kwargs):
+        print(f"CloudLoggingCallback: on_log called. request_id: {self.request_id}, logs: {logs}")
         if logs is not None:
             current_epoch_val = math.floor(state.epoch)  # 0 for 1st epoch, 1 for 2nd...
             total_epochs_val = state.num_train_epochs
@@ -63,17 +64,27 @@ class CloudLoggingCallback(TrainerCallback):
                 "total_steps": state.max_steps,
                 "current_epoch": current_epoch_val, # 0-indexed (completed epochs)
                 "total_epochs": total_epochs_val,
-                "loss": logs.get("loss"),
-                "learning_rate": logs.get("learning_rate"),
             }
 
-            # Add any other metrics from the 'logs' dictionary, avoiding overwrite
-            if logs: # Ensure logs is not None
-                for k, v in logs.items():
-                    if k not in log_payload:
-                        log_payload[k] = v
+            # Process logs, converting NaN to "NaN" string
+            processed_logs = {}
+            for k, v in logs.items():
+                if isinstance(v, float) and math.isnan(v):
+                    processed_logs[k] = "NaN"
+                else:
+                    processed_logs[k] = v
             
-            # Remove None values from payload for cleaner logs
+            # Update payload with processed logs, giving priority to specific keys if needed
+            log_payload.update(processed_logs)
+            
+            # Ensure specific keys like 'loss' and 'learning_rate' are present, even if they were NaN
+            if "loss" not in log_payload and "loss" in logs: # If it was NaN and removed
+                 log_payload["loss"] = "NaN"
+            if "learning_rate" not in log_payload and "learning_rate" in logs: # If it was NaN and removed
+                 log_payload["learning_rate"] = "NaN"
+
+
+            # Remove None values from payload for cleaner logs (NaN strings will be kept)
             log_payload = {k: v for k, v in log_payload.items() if v is not None}
 
             print(f"CloudLoggingCallback: Logging to cloud: {log_payload}")
