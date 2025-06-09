@@ -121,3 +121,17 @@ def training_task():
         project_id=args.project_id
     )
 
+    engine.train_with_unsloth(
+        dataset_path=args.dataset, 
+        learning_rate=args.learning_rate,
+        num_train_epochs=args.epochs,
+        lora_rank=args.lora_rank,
+        output_dir_for_results=args.output_dir
+    ) 
+
+    print(f"Training finished. Outputs should be in {args.output_dir}")
+
+
+
+if __name__ == '__main__':
+    training_task()
