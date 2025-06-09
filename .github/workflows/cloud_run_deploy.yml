@@ -1,56 +1,57 @@
-# name: 'Deploy to Cloud Run from Source'
+name: 'Deploy to Cloud Run from Source'
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# env:
-#   PROJECT_ID: 'llm-garage'
-#   REGION: 'us-central1'
-#   SERVICE: 'llm-garage-finetune'
+env:
+  PROJECT_ID: 'llm-garage'
+  REGION: 'us-central1'
+  SERVICE: 'llm-garage-finetune'
 
-# jobs:
-#   deploy:
-#     runs-on: 'ubuntu-latest'
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
 
-#     permissions:
-#       contents: 'read'
-#       id-token: 'write'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
-#     steps:
-#       - name: 'Checkout'
-#         uses: 'actions/checkout@v4'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
 
-#       - name: 'Authenticate to Google Cloud'
-#         uses: 'google-github-actions/auth@v2'
-#         with:
-#           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
       
-#       - name: 'Build and Push Docker Image'
-#         run: |
-#           gcloud builds submit \
-#             --config cloudbuild.yaml \
-#             --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_SERVICE=${{ env.SERVICE }} \
-#             --project ${{ env.PROJECT_ID }} \
+      - name: 'Build and Push Docker Image'
+        run: |
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_SERVICE=${{ env.SERVICE }} \
+            --project ${{ env.PROJECT_ID }} \
 
-#       - name: 'Deploy to Cloud Run'
-#         run: |
-#           gcloud run deploy ${{ env.SERVICE }} \
-#             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
-#             --region ${{ env.REGION }} \
-#             --cpu 8 \
-#             --gpu 1 \
-#             --gpu-type nvidia-l4 \
-#             --max-instances 1 \
-#             --memory 32Gi \
-#             --allow-unauthenticated
+      - name: 'Deploy to Cloud Run'
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --cpu 8 \
+            --gpu 1 \
+            --gpu-type nvidia-l4 \
+            --max-instances 1 \
+            --memory 32Gi \
+            --timeout 3600s \
+            --allow-unauthenticated
     
-#     #Change policy so service is publicly accessible
-#       - name: 'Set IAM Policy for Cloud Run'
-#         run: |
-#           gcloud beta run services add-iam-policy-binding \
-#             --region=${{ env.REGION }} \
-#             --member=allUsers \
-#             --role=roles/run.invoker \
-#             ${{ env.SERVICE }}
+    #Change policy so service is publicly accessible
+      - name: 'Set IAM Policy for Cloud Run'
+        run: |
+          gcloud beta run services add-iam-policy-binding \
+            --region=${{ env.REGION }} \
+            --member=allUsers \
+            --role=roles/run.invoker \
+            ${{ env.SERVICE }}
