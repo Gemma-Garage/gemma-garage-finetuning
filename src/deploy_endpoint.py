@@ -3,11 +3,11 @@ from google.cloud import aiplatform
 # === CONFIGURATION ===
 PROJECT_ID = "llm-garage"
 REGION = "us-central1"
-BUCKET_URI = "gs://llm-garage-models/gemma-peft-vertex-output/gemma-peft-finetune-20250522-020707/"  # No file name, just folder path
+BUCKET_URI = "gs://llm-garage-models/gemma-peft-vertex-output/model/44641ea7-fa07-4665-9db8-4806e83fccde/final_model/"  # No file name, just folder path
 MODEL_DISPLAY_NAME = "test-endpoint"
 ENDPOINT_DISPLAY_NAME = "new-model-endpoint"
 MACHINE_TYPE = "n1-standard-4"
-PREBUILT_CONTAINER_URI = "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest"  # adjust if using PyTorch or custom model
+PREBUILT_CONTAINER_URI = "us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-13:latest"  # adjust if using PyTorch or custom model
 
 # === INIT ===
 aiplatform.init(project=PROJECT_ID, location=REGION)
