@@ -41,6 +41,6 @@ jobs:
         - name: 'Build and Push Docker Image using Cloud Build'
           run: gcloud builds submit \
                 --config cloudbuild.yaml \
-                --substitutions=_IMAGE_NAME='${{ env.IMAGE_NAME }}',_HF_TOKEN='${{ secrets.HF_TOKEN }}'
+                --substitutions _IMAGE_NAME=${{ env.IMAGE_NAME }},_HF_TOKEN=${{ secrets.HF_TOKEN }}
                 --project ${{ env.PROJECT_ID }}
 
