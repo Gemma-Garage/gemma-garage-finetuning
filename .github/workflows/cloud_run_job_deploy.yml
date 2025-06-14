@@ -36,7 +36,7 @@ jobs:
 
       - name: 'Deploy to Cloud Run'
         run: |
-          gcloud run jobs deploy ${{ env.SERVICE }} \
+          gcloud beta run jobs deploy ${{ env.SERVICE }} \
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
             --region ${{ env.REGION }} \
             --cpu 8 \
