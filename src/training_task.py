@@ -4,15 +4,17 @@ import os
 from finetuning import FineTuningEngine
 from finetuning_unsloth import UnslothFineTuningEngine 
 
-def training_task(dataset,
-                  output_dir,
-                  model_name,
-                  epochs,
-                  learning_rate,
-                  lora_rank,
-                  request_id,
-                  project_id):
+def training_task():
     
+    dataset = os.environ.get('DATASET')
+    output_dir = os.environ.get('OUTPUT_DIR')
+    model_name = os.environ.get('MODEL_NAME', 'google/gemma-2b')
+    epochs = int(os.environ.get('EPOCHS', 1))
+    learning_rate = float(os.environ.get('LEARNING_RATE', 2e-4))
+    lora_rank = int(os.environ.get('LORA_RANK', 4))
+    request_id = os.environ.get('REQUEST_ID')
+    project_id = os.environ.get('PROJECT_ID')
+
     print("Starting training task with arguments:")
     print(f"  Dataset: {dataset}")
     print(f"  Output Directory: {output_dir}")
@@ -81,6 +83,85 @@ def training_task(dataset,
     ) 
 
     print(f"Training finished. Outputs should be in {output_dir}")
+
+
+# def training_task(dataset,
+#                   output_dir,
+#                   model_name,
+#                   epochs,
+#                   learning_rate,
+#                   lora_rank,
+#                   request_id,
+#                   project_id):
+    
+#     print("Starting training task with arguments:")
+#     print(f"  Dataset: {dataset}")
+#     print(f"  Output Directory: {output_dir}")
+#     print(f"  Model Name: {model_name}")
+#     print(f"  Epochs: {epochs}")
+#     print(f"  Learning Rate: {learning_rate}")
+#     print(f"  LoRA Rank: {lora_rank}")
+#     print(f"  Request ID: {request_id}")
+#     print(f"  Project ID: {project_id}")
+
+#     # Initialize FineTuningEngine
+#     # Pass request_id and project_id for custom logging
+#     engine = UnslothFineTuningEngine(
+#         model_name=model_name,
+#         request_id=request_id,
+#         project_id=project_id
+#     )
+
+#     # Modify FineTuningEngine to accept dataset_path in set_lora_fine_tuning
+#     # and use it directly with load_dataset.
+#     # Also, ensure perform_fine_tuning saves outputs to args.output_dir.
+#     # Example (conceptual changes needed in finetuning.py):
+#     # In finetuning.py, set_lora_fine_tuning might look like:
+#     #   def set_lora_fine_tuning(self, dataset_path=None, learning_rate=2e-4, ..., output_dir_for_results=None):
+#     #       self.output_dir_for_results = output_dir_for_results # Store for saving later
+#     #       if dataset_path:
+#     #           file_ext = dataset_path.split('.')[-1] if '.' in dataset_path else 'json'
+#     #           loaded_dataset = load_dataset(file_ext, data_files=dataset_path, split="train")
+#     #       else: # fallback to default
+#     #           loaded_dataset = load_dataset("King-Harry/NinjaMasker-PII-Redaction-Dataset", split="train", trust_remote_code=True)
+#     #       self.dataset = loaded_dataset
+#     #       # ... rest of the setup ...
+#     #       training_params.output_dir = self.output_dir_for_results # Ensure HF Trainer also knows output dir
+
+#     # In finetuning.py, perform_fine_tuning might look like:
+#     #   def perform_fine_tuning(self, update_callback=None): # update_callback likely not used
+#     #       # ...
+#     #       self.trainer.train()
+#     #       self.trainer.model.save_pretrained(self.output_dir_for_results) # Use the stored output_dir
+#     #       self.trainer.tokenizer.save_pretrained(self.output_dir_for_results)
+
+
+#     # print("Setting up LoRA fine-tuning...")
+#     # engine.set_lora_fine_tuning(
+#     #     dataset_path=dataset, 
+#     #     learning_rate=learning_rate,
+#     #     epochs=epochs,
+#     #     lora_rank=lora_rank,
+#     #     #callback_loop=None, # WebSocket not used in Vertex AI
+#     #     # Pass output_dir to be used by save_pretrained within FineTuningEngine
+#     #     # This requires modifying FineTuningEngine's set_lora_fine_tuning or __init__
+#     #     # For now, assuming finetuning.py is adapted to use args.output_dir for saving.
+#     #     # A common pattern is for the training_params.output_dir to be set to args.output_dir
+#     #     # and then trainer.save_model() will use that.
+#     #     output_dir_for_results=output_dir 
+#     # )
+    
+#     print("Performing fine-tuning...")
+#     # Ensure perform_fine_tuning in finetuning.py saves to args.output_dir
+#     engine.train_with_unsloth(
+#         dataset_path=dataset, 
+#         learning_rate=learning_rate,
+#         num_train_epochs=epochs,
+#         lora_rank=lora_rank,
+#         output_dir_for_results=output_dir
+#     ) 
+
+#     print(f"Training finished. Outputs should be in {output_dir}")
 
 # # if __name__ == '__main__':
 # #     training_task()
