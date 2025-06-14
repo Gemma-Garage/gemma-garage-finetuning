@@ -1,47 +1,47 @@
-name: 'Deploy to Cloud Batch Container'
+# name: 'Deploy to Cloud Batch Container'
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-env:
-  PROJECT_ID: 'llm-garage'
-  REGION: 'us-central1'
-  SERVICE: 'llm-garage-finetune'
-  IMAGE_NAME: 'finetune-image'
+# env:
+#   PROJECT_ID: 'llm-garage'
+#   REGION: 'us-central1'
+#   SERVICE: 'llm-garage-finetune'
+#   IMAGE_NAME: 'finetune-image'
 
-jobs:
-  deploy:
-    runs-on: 'ubuntu-latest'
+# jobs:
+#   deploy:
+#     runs-on: 'ubuntu-latest'
 
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+#     permissions:
+#       contents: 'read'
+#       id-token: 'write'
 
-    steps:
-        - name: 'Checkout code'
-          uses: 'actions/checkout@v4'
+#     steps:
+#         - name: 'Checkout code'
+#           uses: 'actions/checkout@v4'
     
-        - name: 'Authenticate to Google Cloud'
-          uses: 'google-github-actions/auth@v2'
-          with:
-           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+#         - name: 'Authenticate to Google Cloud'
+#           uses: 'google-github-actions/auth@v2'
+#           with:
+#            credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
         
-        - name: Set up gcloud CLI
-          uses: google-github-actions/setup-gcloud@v2
-          with:
-            project_id: ${{ env.PROJECT_ID }}
+#         - name: Set up gcloud CLI
+#           uses: google-github-actions/setup-gcloud@v2
+#           with:
+#             project_id: ${{ env.PROJECT_ID }}
 
-        - name: 'Set up Cloud SDK' # Good practice to explicitly include
-          uses: 'google-github-actions/setup-gcloud@v2'
-          with:
-           project_id: ${{ env.PROJECT_ID }}
+#         - name: 'Set up Cloud SDK' # Good practice to explicitly include
+#           uses: 'google-github-actions/setup-gcloud@v2'
+#           with:
+#            project_id: ${{ env.PROJECT_ID }}
 
-        - name: 'Build and Push Docker Image using Cloud Build'
-          run: |
-            gcloud builds submit \
-                --config cloudbuild.yaml \
-                --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_IMAGE_NAME=${{ env.IMAGE_NAME }} \
-                --project ${{ env.PROJECT_ID }} \
+#         - name: 'Build and Push Docker Image using Cloud Build'
+#           run: |
+#             gcloud builds submit \
+#                 --config cloudbuild.yaml \
+#                 --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_IMAGE_NAME=${{ env.IMAGE_NAME }} \
+#                 --project ${{ env.PROJECT_ID }} \
 
