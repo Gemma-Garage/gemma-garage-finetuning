@@ -6,14 +6,35 @@ from finetuning_unsloth import UnslothFineTuningEngine
 
 def training_task():
     
-    dataset = os.environ.get('DATASET')
-    output_dir = os.environ.get('OUTPUT_DIR')
-    model_name = os.environ.get('MODEL_NAME', 'google/gemma-2b')
-    epochs = int(os.environ.get('EPOCHS', 1))
-    learning_rate = float(os.environ.get('LEARNING_RATE', 2e-4))
-    lora_rank = int(os.environ.get('LORA_RANK', 4))
-    request_id = os.environ.get('REQUEST_ID')
-    project_id = os.environ.get('PROJECT_ID')
+    parser = argparse.ArgumentParser(description="Vertex AI Fine-tuning Task")
+    parser.add_argument('--dataset', type=str, required=True, help='GCS path to the dataset file or directory')
+    parser.add_argument('--output_dir', type=str, required=True, help='GCS path to save model outputs')
+    parser.add_argument('--model_name', type=str, default='google/gemma-2b', help='Name of the Hugging Face model to finetune')
+    parser.add_argument('--epochs', type=int, default=1, help='Number of training epochs')
+    parser.add_argument('--learning_rate', type=float, default=2e-4, help='Learning rate')
+    parser.add_argument('--lora_rank', type=int, default=4, help='LoRA rank')
+    parser.add_argument('--request_id', type=str, required=True, help='Unique request ID for this training job')
+    parser.add_argument('--project_id', type=str, required=True, help='Google Cloud Project ID for logging')
+
+    args = parser.parse_args()
+
+    dataset = args.dataset
+    output_dir = args.output_dir
+    model_name = args.model_name
+    epochs = args.epochs
+    learning_rate = args.learning_rate
+    lora_rank = args.lora_rank
+    request_id = args.request_id
+    project_id = args.project_id
+#     # Add any other parameters your FineTuningEngine or training process needs
+    # dataset = os.environ.get('DATASET')
+    # output_dir = os.environ.get('OUTPUT_DIR')
+    # model_name = os.environ.get('MODEL_NAME', 'google/gemma-2b')
+    # epochs = int(os.environ.get('EPOCHS', 1))
+    # learning_rate = float(os.environ.get('LEARNING_RATE', 2e-4))
+    # lora_rank = int(os.environ.get('LORA_RANK', 4))
+    # request_id = os.environ.get('REQUEST_ID')
+    # project_id = os.environ.get('PROJECT_ID')
 
     print("Starting training task with arguments:")
     print(f"  Dataset: {dataset}")
