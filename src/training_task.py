@@ -235,5 +235,5 @@ def training_task():
 
 
 
-# if __name__ == '__main__':
-#     training_task()
+if __name__ == '__main__':
+    training_task()
