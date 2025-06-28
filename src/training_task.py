@@ -26,7 +26,7 @@ def training_task():
     lora_rank = args.lora_rank
     request_id = args.request_id
     project_id = args.project_id
-#     # Add any other parameters your FineTuningEngine or training process needs
+    # Add any other parameters your FineTuningEngine or training process needs
     # dataset = os.environ.get('DATASET')
     # output_dir = os.environ.get('OUTPUT_DIR')
     # model_name = os.environ.get('MODEL_NAME', 'google/gemma-2b')

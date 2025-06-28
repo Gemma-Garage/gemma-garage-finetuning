@@ -177,6 +177,38 @@ class UnslothFineTuningEngine:
         return formatted
 
 
+    def upload_to_gcs(local_dir, gcs_path):
+        bucket_name, *blob_path = gcs_path.replace("gs://", "").split("/", 1)
+        blob_path_prefix = blob_path[0] if blob_path else ""
+
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+
+        for root, _, files in os.walk(local_dir):
+            for file in files:
+                full_path = os.path.join(root, file)
+                relative_path = os.path.relpath(full_path, local_dir)
+                blob = bucket.blob(os.path.join(blob_path_prefix, relative_path))
+                blob.upload_from_filename(full_path)
+                print(f"Uploaded {full_path} to gs://{bucket_name}/{blob.name}")
+
+
+    def download_from_gcs(self, gcs_path, local_dir=None):
+        """
+        Downloads a file from GCS to a local path and returns the local file path.
+        """
+        bucket_name, *blob_path = gcs_path.replace("gs://", "").split("/", 1)
+        blob_path = blob_path[0] if blob_path else ""
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(blob_path)
+        if local_dir is None:
+            local_dir = tempfile.mkdtemp()
+        local_path = os.path.join(local_dir, os.path.basename(blob_path))
+        blob.download_to_filename(local_path)
+        print(f"Downloaded {gcs_path} to {local_path}")
+        return local_path
+
     def train_with_unsloth(
         self,
         dataset_path: str,
@@ -216,8 +248,10 @@ class UnslothFineTuningEngine:
         """
         print(f"Starting Unsloth fine-tuning for model: {self.model_name} with dataset: {dataset_path}")
 
-        # Convert to list of dicts for formatting
-        # Load model and tokenizer (needed for chat template)
+        # Download from GCS if path starts with gs://
+        if dataset_path.startswith("gs://"):
+            local_dataset_path = self.download_from_gcs(dataset_path)
+        
         model, tokenizer = FastLanguageModel.from_pretrained(
                 model_name = self.model_name,
                 max_seq_length = MAX_SEQ_LENGTH,
@@ -226,25 +260,24 @@ class UnslothFineTuningEngine:
         )
         print("Model and tokenizer loaded.")
 
-        if isinstance(dataset, dict) and 'qa_pairs' in dataset:
-            data_list = dataset
-            
-            
-            # Format to Gemma 3 chat format (with tokenizer for chat template)
-            formatted_data = format_for_gemma3_chat(data_list, tokenizer=tokenizer)
-            # Save formatted data to a temporary file for Unsloth
-            print(formatted_data[:5])  # Print first 5 entries for debugging
-            with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False, encoding="utf-8") as tmpf:
-                for entry in formatted_data:
-                    tmpf.write(json.dumps(entry) + "\n")
-                tmpf_path = tmpf.name
-            # Reload as HuggingFace dataset
-            dataset = load_dataset("json", data_files=tmpf_path, split="train")
+        # Open the dataset file as JSON to determine its structure
+        with open(local_dataset_path, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+            except Exception as e:
+                raise ValueError(f"Failed to load dataset as JSON: {e}")
         
+        print(data[0])
+        # If it's a dict with 'qa_pairs' or a list of QA dicts, format and save to temp file
+        if isinstance(data, dict) and 'qa_pairs' in data:
+            dataset = format_for_gemma3_chat(data, tokenizer=self.tokenizer)
         else:
-            # Load dataset (raw)
-            dataset = load_dataset("json", data_files=dataset_path, split="train")
-            
+            dataset = load_dataset("json", data_files=local_dataset_path, split="train")
+        
+        print("Dataset check:")
+        print(dataset[0])
+        print(dataset[0][0])
+        
         model = FastLanguageModel.get_peft_model(
             model,
             r = lora_rank,
