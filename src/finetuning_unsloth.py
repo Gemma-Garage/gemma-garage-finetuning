@@ -336,7 +336,7 @@ def format_for_gemma3_chat(data, tokenizer=None, system_prompt="You are a helpfu
     """
     Converts a dataset to Gemma 3 chat format using the tokenizer's chat template if available.
     - If data is a list of dicts with only a 'text' key, returns as-is (text-only dataset).
-    - If data is a dict with 'summary' and 'qa_pairs', applies chat formatting to each QA pair using the tokenizer's chat template (as in the notebook).
+    - If data is a dict with 'summary' and 'qa_pairs', applies chat formatting to each QA pair using the tokenizer's chat template (as in the notebook), and outputs a list of dicts with a 'text' key.
     """
     # If data is a list of dicts with only 'text', return as-is (text-only dataset)
     if isinstance(data, list) and all(isinstance(x, dict) and 'text' in x and len(x) == 1 for x in data):
@@ -364,10 +364,10 @@ def format_for_gemma3_chat(data, tokenizer=None, system_prompt="You are a helpfu
                 else:
                     raise ValueError("Tokenizer with apply_chat_template required for Gemma 3 chat formatting.")
         return formatted
-    # Otherwise, fallback to previous logic (for legacy support)
-    formatted = []
-    for item in data:
-        if 'question' in item and 'answer' in item:
+    # Otherwise, fallback: if data is a list of dicts with 'question' and 'answer', treat as QA pairs
+    if isinstance(data, list) and all(isinstance(x, dict) and 'question' in x and 'answer' in x for x in data):
+        formatted = []
+        for item in data:
             if tokenizer is not None and hasattr(tokenizer, 'apply_chat_template'):
                 conversation = [
                     {"role": "system", "content": system_prompt},
@@ -384,8 +384,8 @@ def format_for_gemma3_chat(data, tokenizer=None, system_prompt="You are a helpfu
                 formatted.append({"text": text})
             else:
                 raise ValueError("Tokenizer with apply_chat_template required for Gemma 3 chat formatting.")
-        elif 'text' in item:
-            formatted.append(item)
-    return formatted
+        return formatted
+    # If data is not in a supported format, raise an error
+    raise ValueError("Input data must be a list of text dicts, a dict with 'qa_pairs', or a list of QA dicts.")
 
 
