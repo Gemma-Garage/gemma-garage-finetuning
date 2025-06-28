@@ -22,7 +22,6 @@ import json
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-from finetuning import format_for_gemma3_chat
 
 # Gemma-specific configurations (can be adjusted)
 MAX_SEQ_LENGTH = 2048 # Choose any! We auto support RoPE Scaling internally!
