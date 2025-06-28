@@ -1,4 +1,3 @@
-
 import os
 
 
@@ -19,6 +18,11 @@ from transformers import (
 )
 import math
 from datetime import datetime, timezone
+import json
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from finetuning import format_for_gemma3_chat
 
 # Gemma-specific configurations (can be adjusted)
 MAX_SEQ_LENGTH = 2048 # Choose any! We auto support RoPE Scaling internally!
@@ -146,6 +150,32 @@ class UnslothFineTuningEngine:
         dataset = load_dataset(file_extension, data_files=dataset_path, split="train")
         self.datasets.append(dataset) # This logic might need review if only one dataset is used
         return dataset
+    
+    def format_for_gemma3_chat(data, system_prompt="You are a helpful assistant."):
+        """
+        Converts a list of dicts (QA pairs or text chunks) to Gemma 3 chat format.
+        - If dict has 'question' and 'answer', treat as QA pair.
+        - If dict has 'text', treat as single-turn chat.
+        Returns a list of dicts with 'messages' key.
+        """
+        formatted = []
+        for item in data:
+            if 'question' in item and 'answer' in item:
+                formatted.append({
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": item["question"]},
+                        {"role": "assistant", "content": item["answer"]}
+                    ]
+                })
+            elif 'text' in item:
+                formatted.append({
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": item["text"]}
+                    ]
+                })
+        return formatted
 
 
     def train_with_unsloth(
@@ -187,9 +217,32 @@ class UnslothFineTuningEngine:
         """
         print(f"Starting Unsloth fine-tuning for model: {self.model_name} with dataset: {dataset_path}")
 
-        # Load dataset
+        # Load dataset (raw)
         dataset = load_dataset("json", data_files=dataset_path, split="train")
-        
+        # Convert to list of dicts for formatting
+        # Load model and tokenizer (needed for chat template)
+        model, tokenizer = FastLanguageModel.from_pretrained(
+                model_name = self.model_name,
+                max_seq_length = MAX_SEQ_LENGTH,
+                dtype = DTYPE,
+                load_in_4bit = LOAD_IN_4BIT,
+        )
+        print("Model and tokenizer loaded.")
+
+        if isinstance(dataset, dict) and 'qa_pairs' in dataset:
+            data_list = dataset
+            
+            
+            # Format to Gemma 3 chat format (with tokenizer for chat template)
+            formatted_data = format_for_gemma3_chat(data_list, tokenizer=tokenizer)
+            # Save formatted data to a temporary file for Unsloth
+            with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmpf:
+                for entry in formatted_data:
+                    tmpf.write(json.dumps(entry) + "\n")
+                tmpf_path = tmpf.name
+            # Reload as HuggingFace dataset
+            dataset = load_dataset("json", data_files=tmpf_path, split="train")
+            
         # Load model and tokenizer
         model, tokenizer = FastLanguageModel.from_pretrained(
             model_name = self.model_name,
@@ -219,7 +272,7 @@ class UnslothFineTuningEngine:
         training_args = SFTConfig(
             output_dir=output_dir_for_results,
             num_train_epochs=num_train_epochs,
-            dataset_text_field="text",  # Ensure this matches the output of your formatting function or your dataset's text column
+            dataset_text_field="text",
             per_device_train_batch_size=per_device_train_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
             warmup_steps=warmup_steps,
@@ -279,5 +332,61 @@ class UnslothFineTuningEngine:
             upload_to_gcs(tmp_dir, final_model_path)
                 
         print("Saved models!")
-    
+
+def format_for_gemma3_chat(data, tokenizer=None, system_prompt="You are a helpful assistant."):
+    """
+    Converts a dataset to Gemma 3 chat format using the tokenizer's chat template if available.
+    - If data is a list of dicts with only a 'text' key, returns as-is (text-only dataset).
+    - If data is a dict with 'summary' and 'qa_pairs', applies chat formatting to each QA pair using the tokenizer's chat template (as in the notebook).
+    """
+    # If data is a list of dicts with only 'text', return as-is (text-only dataset)
+    if isinstance(data, list) and all(isinstance(x, dict) and 'text' in x and len(x) == 1 for x in data):
+        return data
+    # If data is a dict with 'summary' and 'qa_pairs', format the qa_pairs using the tokenizer's chat template
+    if isinstance(data, dict) and 'qa_pairs' in data:
+        qa_pairs = data['qa_pairs']
+        formatted = []
+        for item in qa_pairs:
+            if 'question' in item and 'answer' in item:
+                if tokenizer is not None and hasattr(tokenizer, 'apply_chat_template'):
+                    conversation = [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": item["question"]},
+                        {"role": "assistant", "content": item["answer"]}
+                    ]
+                    text = tokenizer.apply_chat_template(
+                        conversation,
+                        tokenize=False,
+                        add_generation_prompt=False
+                    )
+                    if text.startswith("<bos>"):
+                        text = text[len("<bos>"):]
+                    formatted.append({"text": text})
+                else:
+                    raise ValueError("Tokenizer with apply_chat_template required for Gemma 3 chat formatting.")
+        return formatted
+    # Otherwise, fallback to previous logic (for legacy support)
+    formatted = []
+    for item in data:
+        if 'question' in item and 'answer' in item:
+            if tokenizer is not None and hasattr(tokenizer, 'apply_chat_template'):
+                conversation = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": item["question"]},
+                    {"role": "assistant", "content": item["answer"]}
+                ]
+                text = tokenizer.apply_chat_template(
+                    conversation,
+                    tokenize=False,
+                    add_generation_prompt=False
+                )
+                if text.startswith("<bos>"):
+                    text = text[len("<bos>"):]
+                formatted.append({"text": text})
+            else:
+                raise ValueError("Tokenizer with apply_chat_template required for Gemma 3 chat formatting.")
+        elif 'text' in item:
+            formatted.append(item)
+    return formatted
+
 
