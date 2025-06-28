@@ -216,8 +216,6 @@ class UnslothFineTuningEngine:
         """
         print(f"Starting Unsloth fine-tuning for model: {self.model_name} with dataset: {dataset_path}")
 
-        # Load dataset (raw)
-        dataset = load_dataset("json", data_files=dataset_path, split="train")
         # Convert to list of dicts for formatting
         # Load model and tokenizer (needed for chat template)
         model, tokenizer = FastLanguageModel.from_pretrained(
@@ -235,24 +233,18 @@ class UnslothFineTuningEngine:
             # Format to Gemma 3 chat format (with tokenizer for chat template)
             formatted_data = format_for_gemma3_chat(data_list, tokenizer=tokenizer)
             # Save formatted data to a temporary file for Unsloth
-            with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmpf:
+            print(formatted_data[:5])  # Print first 5 entries for debugging
+            with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False, encoding="utf-8") as tmpf:
                 for entry in formatted_data:
                     tmpf.write(json.dumps(entry) + "\n")
                 tmpf_path = tmpf.name
             # Reload as HuggingFace dataset
             dataset = load_dataset("json", data_files=tmpf_path, split="train")
+        
+        else:
+            # Load dataset (raw)
+            dataset = load_dataset("json", data_files=dataset_path, split="train")
             
-        # Load model and tokenizer
-        model, tokenizer = FastLanguageModel.from_pretrained(
-            model_name = self.model_name,
-            max_seq_length = MAX_SEQ_LENGTH,
-            dtype = DTYPE,
-            load_in_4bit = LOAD_IN_4BIT,
-            #token = hf_token, # Pass Hugging Face token if model is private
-            # device_map = "auto", # Unsloth handles device mapping
-        )
-        print("Model and tokenizer loaded.")
-
         model = FastLanguageModel.get_peft_model(
             model,
             r = lora_rank,
