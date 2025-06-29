@@ -269,7 +269,6 @@ class UnslothFineTuningEngine:
             except Exception as e:
                 raise ValueError(f"Failed to load dataset as JSON: {e}")
         
-        print(data[0])
         # If it's a dict with 'qa_pairs' or a list of QA dicts, format and save to temp file
         if isinstance(data, dict) and 'qa_pairs' in data:
             dataset = format_for_gemma3_chat(data, tokenizer=self.tokenizer)
@@ -277,8 +276,7 @@ class UnslothFineTuningEngine:
             dataset = load_dataset("json", data_files=local_dataset_path, split="train")
         
         print("Dataset check:")
-        print(dataset[0])
-        print(dataset[0][0])
+        print(dataset)
 
         model = FastLanguageModel.get_peft_model(
             model,
