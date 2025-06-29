@@ -3,12 +3,11 @@ import os
 
 #We need this to track training progress and log it to Google Cloud Logging
 os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
-
+from unsloth import FastLanguageModel
 import torch
 from datasets import load_dataset
 from transformers import TrainingArguments
 from trl import SFTTrainer, SFTConfig
-from unsloth import FastLanguageModel
 from google.cloud import storage
 import tempfile
 from google.cloud import logging as cloud_logging
@@ -260,6 +259,9 @@ class UnslothFineTuningEngine:
         )
         print("Model and tokenizer loaded.")
 
+        print(dataset_path)
+        print(local_dataset_path)
+
         # Open the dataset file as JSON to determine its structure
         with open(local_dataset_path, "r", encoding="utf-8") as f:
             try:
@@ -277,7 +279,7 @@ class UnslothFineTuningEngine:
         print("Dataset check:")
         print(dataset[0])
         print(dataset[0][0])
-        
+
         model = FastLanguageModel.get_peft_model(
             model,
             r = lora_rank,
