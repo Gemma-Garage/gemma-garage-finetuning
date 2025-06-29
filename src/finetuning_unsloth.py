@@ -271,7 +271,7 @@ class UnslothFineTuningEngine:
         
         # If it's a dict with 'qa_pairs' or a list of QA dicts, format and save to temp file
         if isinstance(data, dict) and 'qa_pairs' in data:
-            dataset = format_for_gemma3_chat(data, tokenizer=self.tokenizer)
+            dataset = format_for_gemma3_chat(data, tokenizer=tokenizer)
         else:
             dataset = load_dataset("json", data_files=local_dataset_path, split="train")
         
