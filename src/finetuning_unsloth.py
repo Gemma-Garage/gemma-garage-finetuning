@@ -4,6 +4,8 @@ import os
 #We need this to track training progress and log it to Google Cloud Logging
 os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
 from unsloth import FastLanguageModel
+from unsloth.chat_templates import get_chat_template
+
 import torch
 from datasets import load_dataset
 from transformers import TrainingArguments
@@ -257,6 +259,11 @@ class UnslothFineTuningEngine:
                 dtype = DTYPE,
                 load_in_4bit = LOAD_IN_4BIT,
         )
+
+        tokenizer = get_chat_template(
+            tokenizer,
+            chat_template = "gemma-3")
+
         print("Model and tokenizer loaded.")
 
         print(dataset_path)
