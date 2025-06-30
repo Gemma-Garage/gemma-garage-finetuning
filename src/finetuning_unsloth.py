@@ -7,7 +7,7 @@ from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template
 
 import torch
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from transformers import TrainingArguments
 from trl import SFTTrainer, SFTConfig
 from google.cloud import storage
@@ -278,7 +278,8 @@ class UnslothFineTuningEngine:
         
         # If it's a dict with 'qa_pairs' or a list of QA dicts, format and save to temp file
         if isinstance(data, dict) and 'qa_pairs' in data:
-            dataset = format_for_gemma3_chat(data, tokenizer=tokenizer)
+            formatted_list = format_for_gemma3_chat(data, tokenizer=tokenizer)
+            dataset = Dataset.from_list(formatted_list)
         else:
             dataset = load_dataset("json", data_files=local_dataset_path, split="train")
         
