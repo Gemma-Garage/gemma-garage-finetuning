@@ -14,4 +14,5 @@ tensorboard
 markupsafe==2.0.1
 #torchvision --index-url https://download.pytorch.org/whl/cu118
 unsloth
+timm
 #trl>=0.8.0

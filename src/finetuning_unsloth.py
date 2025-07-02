@@ -249,10 +249,37 @@ class UnslothFineTuningEngine:
         """
         print(f"Starting Unsloth fine-tuning for model: {self.model_name} with dataset: {dataset_path}")
 
+        # Log: Job received
+        self.cloud_logger.log_struct({
+            "status_message": "Job received and instantiating fine-tuning engine...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 1,
+            "step_name": "Job Instantiated"
+        }, severity="INFO")
+
+        # Log: Dataset loading started
+        self.cloud_logger.log_struct({
+            "status_message": "Loading dataset from GCS...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 2,
+            "step_name": "Dataset Loading"
+        }, severity="INFO")
+
         # Download from GCS if path starts with gs://
         if dataset_path.startswith("gs://"):
             local_dataset_path = self.download_from_gcs(dataset_path)
-        
+
+        # Log: Model loading started
+        self.cloud_logger.log_struct({
+            "status_message": "Loading model and tokenizer...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 3,
+            "step_name": "Model Loading"
+        }, severity="INFO")
+
         model, tokenizer = FastLanguageModel.from_pretrained(
                 model_name = self.model_name,
                 max_seq_length = MAX_SEQ_LENGTH,
@@ -265,9 +292,17 @@ class UnslothFineTuningEngine:
             chat_template = "gemma-3")
 
         print("Model and tokenizer loaded.")
-
         print(dataset_path)
         print(local_dataset_path)
+
+        # Log: Dataset formatting
+        self.cloud_logger.log_struct({
+            "status_message": "Formatting dataset for training...",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 4,
+            "step_name": "Dataset Formatting"
+        }, severity="INFO")
 
         # Open the dataset file as JSON to determine its structure
         with open(local_dataset_path, "r", encoding="utf-8") as f:
