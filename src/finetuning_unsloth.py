@@ -141,7 +141,9 @@ class UnslothFineTuningEngine:
         self.cloud_logger.log_struct({
             "status_message": "Initializing fine-tuning engine...", # Changed
             "request_id": self.request_id,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 0,
+            "step_name": "Engine Initialization"
         }, severity="INFO")
 
     def load_new_dataset(self, dataset_path:str, file_extension:str='json'): # dataset_path is now GCS path
@@ -374,6 +376,15 @@ class UnslothFineTuningEngine:
             "timestamp": datetime.now(timezone.utc).isoformat()
         }, severity="INFO")
 
+        # Emit a pre-training log for 'Training Start' before actual training begins
+        self.cloud_logger.log_struct({
+            "status_message": f"Training starting. Epochs: {num_train_epochs} Model outputs will be saved to: {trainer.args.output_dir}",
+            "request_id": self.request_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 5,
+            "step_name": "Training Start"
+        }, severity="INFO")
+
         # 6. Start training
         print("Starting training...")
         trainer.train()
@@ -383,7 +394,9 @@ class UnslothFineTuningEngine:
             "status_message": "Training loop completed. Saving model adapters and tokenizer...",
             "request_id": self.request_id,
             "output_dir": self.output_dir_for_results,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "step": 6,
+            "step_name": "Training Complete"
         }, severity="INFO")
 
         # Save the model
