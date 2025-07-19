@@ -43,7 +43,7 @@ jobs:
             --gpu 1 \
             --gpu-type nvidia-l4 \
             --memory 32Gi \
-            --task-timeout 3600s
+            --task-timeout 3600s \
             --max-retries 1
     
     #Change policy so service is publicly accessible
