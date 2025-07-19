@@ -44,6 +44,7 @@ jobs:
             --gpu-type nvidia-l4 \
             --memory 32Gi \
             --task-timeout 3600s
+            --max-retries 1
     
     #Change policy so service is publicly accessible
       - name: 'Set IAM Policy for Cloud Run'

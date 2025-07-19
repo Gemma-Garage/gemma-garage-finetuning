@@ -16,3 +16,19 @@ markupsafe==2.0.1
 unsloth
 timm
 #trl>=0.8.0
+
+# Core ML/Finetuning (added if missing)
+#torch
+#torchvision
+transformers
+peft
+accelerate
+bitsandbytes
+trl
+
+# Data Handling
+pandas
+
+# RL/Reward/External APIs
+litellm
+google-generativeai

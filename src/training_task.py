@@ -2,7 +2,8 @@ import argparse
 import os
 # Ensure finetuning.py is in the same directory (src/) or Python path is set correctly
 from finetuning import FineTuningEngine
-from finetuning_unsloth import UnslothFineTuningEngine 
+from finetuning_unsloth import UnslothFineTuningEngine
+from rl_finetuning import RLFinetuningEngine 
 
 def training_task():
     
@@ -15,6 +16,8 @@ def training_task():
     parser.add_argument('--lora_rank', type=int, default=4, help='LoRA rank')
     parser.add_argument('--request_id', type=str, required=True, help='Unique request ID for this training job')
     parser.add_argument('--project_id', type=str, required=True, help='Google Cloud Project ID for logging')
+    parser.add_argument('--job_type', type=str, default='supervised', help='Type of training job: supervised or rl_finetuning')
+    parser.add_argument('--custom_rubric', type=str, default='', help='Custom rubric for RL reward evaluation')
 
     args = parser.parse_args()
 
@@ -26,6 +29,8 @@ def training_task():
     lora_rank = args.lora_rank
     request_id = args.request_id
     project_id = args.project_id
+    job_type = args.job_type
+    custom_rubric = args.custom_rubric
     # Add any other parameters your FineTuningEngine or training process needs
     # dataset = os.environ.get('DATASET')
     # output_dir = os.environ.get('OUTPUT_DIR')
@@ -45,14 +50,25 @@ def training_task():
     print(f"  LoRA Rank: {lora_rank}")
     print(f"  Request ID: {request_id}")
     print(f"  Project ID: {project_id}")
+    print(f"  Job Type: {job_type}")
+    if job_type == "rl_finetuning":
+        print(f"  Custom Rubric: {custom_rubric[:100]}..." if len(custom_rubric) > 100 else f"  Custom Rubric: {custom_rubric}")
 
-    # Initialize FineTuningEngine
-    # Pass request_id and project_id for custom logging
-    engine = UnslothFineTuningEngine(
-        model_name=model_name,
-        request_id=request_id,
-        project_id=project_id
-    )
+    # Initialize appropriate engine based on job type
+    if job_type == "rl_finetuning":
+        # Use RL finetuning engine
+        engine = RLFinetuningEngine(
+            model_name=model_name,
+            request_id=request_id,
+            project_id=project_id
+        )
+    else:
+        # Use supervised finetuning engine
+        engine = UnslothFineTuningEngine(
+            model_name=model_name,
+            request_id=request_id,
+            project_id=project_id
+        )
 
     # Modify FineTuningEngine to accept dataset_path in set_lora_fine_tuning
     # and use it directly with load_dataset.
@@ -94,14 +110,26 @@ def training_task():
     # )
     
     print("Performing fine-tuning...")
-    # Ensure perform_fine_tuning in finetuning.py saves to args.output_dir
-    engine.train_with_unsloth(
-        dataset_path=dataset, 
-        learning_rate=learning_rate,
-        num_train_epochs=epochs,
-        lora_rank=lora_rank,
-        output_dir_for_results=output_dir
-    ) 
+    # Use appropriate training method based on job type
+    if job_type == "rl_finetuning":
+        # RL finetuning with custom rubric
+        engine.train(
+            dataset_path=dataset,
+            learning_rate=learning_rate,
+            num_train_epochs=epochs,
+            lora_rank=lora_rank,
+            output_dir_for_results=output_dir,
+            custom_rubric=custom_rubric
+        )
+    else:
+        # Supervised finetuning
+        engine.train_with_unsloth(
+            dataset_path=dataset, 
+            learning_rate=learning_rate,
+            num_train_epochs=epochs,
+            lora_rank=lora_rank,
+            output_dir_for_results=output_dir
+        ) 
 
     print(f"Training finished. Outputs should be in {output_dir}")
 
