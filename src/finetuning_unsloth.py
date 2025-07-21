@@ -1,5 +1,15 @@
 import os
 
+# Configure TorchDynamo to prevent recompilation issues
+import torch._dynamo
+try:
+    torch._dynamo.config.cache_size_limit = 128  # Increase cache size
+    torch._dynamo.config.recompilation_limit = 10  # Increase recompilation limit
+    torch._dynamo.config.suppress_errors = True  # Suppress some compilation errors
+except AttributeError:
+    # Fallback: disable TorchDynamo if configuration fails
+    os.environ["TORCHDYNAMO_DISABLE"] = "1"
+    print("Warning: TorchDynamo configuration failed, disabling for stability")
 
 #We need this to track training progress and log it to Google Cloud Logging
 os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
@@ -28,6 +38,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 MAX_SEQ_LENGTH = 2048 # Choose any! We auto support RoPE Scaling internally!
 DTYPE = None # None for auto detection. Float16 for Tesla T4, V100, Bfloat16 for Ampere+
 LOAD_IN_4BIT = True # Use 4bit quantization to reduce memory usage. Can be False.
+
+# Additional configurations to prevent recompilation issues
+os.environ["TORCH_LOGS"] = "recompiles"  # Monitor recompilations
+os.environ["TORCHDYNAMO_DISABLE"] = "0"  # Keep TorchDynamo enabled but with better config
 
 # Define the Alpaca prompt template components - REMOVING THESE
 # This can be customized
@@ -354,7 +368,12 @@ class UnslothFineTuningEngine:
             lr_scheduler_type="linear",
             seed=3407,
             report_to="tensorboard", # or "wandb"
-            max_seq_length=MAX_SEQ_LENGTH
+            max_seq_length=MAX_SEQ_LENGTH,
+            # Additional configurations to prevent recompilation issues
+            dataloader_pin_memory=False,  # Reduce memory pressure
+            remove_unused_columns=False,  # Prevent column removal issues
+            ddp_find_unused_parameters=False,  # Prevent DDP issues
+            gradient_checkpointing=True,  # Enable gradient checkpointing for memory efficiency
         )
 
         callbacks = [CloudLoggingCallback(self.cloud_logger, self.request_id)]
