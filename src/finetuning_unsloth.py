@@ -289,7 +289,7 @@ class UnslothFineTuningEngine:
 
         model, tokenizer = FastLanguageModel.from_pretrained(
                 model_name = self.model_name,
-                max_seq_length = MAX_SEQ_LENGTH,
+                #max_seq_length = MAX_SEQ_LENGTH,
                 dtype = DTYPE,
                 load_in_4bit = LOAD_IN_4BIT,
         )
