@@ -289,7 +289,7 @@ class UnslothFineTuningEngine:
 
         model, tokenizer = FastLanguageModel.from_pretrained(
                 model_name = self.model_name,
-                #max_seq_length = MAX_SEQ_LENGTH,
+                max_seq_length = MAX_SEQ_LENGTH,
                 dtype = DTYPE,
                 load_in_4bit = LOAD_IN_4BIT,
         )
@@ -358,13 +358,7 @@ class UnslothFineTuningEngine:
             optim = "adamw_8bit", # Uses 8-bit AdamW optimizer from bitsandbytes
             lr_scheduler_type="linear",
             seed=3407,
-            report_to="tensorboard", # or "wandb"
-            max_seq_length=MAX_SEQ_LENGTH,
-            # Additional configurations to prevent recompilation issues
-            dataloader_pin_memory=False,  # Reduce memory pressure
-            remove_unused_columns=False,  # Prevent column removal issues
-            ddp_find_unused_parameters=False,  # Prevent DDP issues
-            gradient_checkpointing=True,  # Enable gradient checkpointing for memory efficiency
+            report_to="tensorboard" # or "wandb"
         )
 
         callbacks = [CloudLoggingCallback(self.cloud_logger, self.request_id)]
