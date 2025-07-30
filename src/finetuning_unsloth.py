@@ -1,15 +1,7 @@
 import os
 
-# Configure TorchDynamo to prevent recompilation issues
-import torch._dynamo
-try:
-    torch._dynamo.config.cache_size_limit = 128  # Increase cache size
-    torch._dynamo.config.recompilation_limit = 10  # Increase recompilation limit
-    torch._dynamo.config.suppress_errors = True  # Suppress some compilation errors
-except AttributeError:
-    # Fallback: disable TorchDynamo if configuration fails
-    os.environ["TORCHDYNAMO_DISABLE"] = "1"
-    print("Warning: TorchDynamo configuration failed, disabling for stability")
+# Disable TorchDynamo to prevent recompilation issues
+os.environ["TORCHDYNAMO_DISABLE"] = "1"
 
 #We need this to track training progress and log it to Google Cloud Logging
 os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
@@ -41,7 +33,6 @@ LOAD_IN_4BIT = True # Use 4bit quantization to reduce memory usage. Can be False
 
 # Additional configurations to prevent recompilation issues
 os.environ["TORCH_LOGS"] = "recompiles"  # Monitor recompilations
-os.environ["TORCHDYNAMO_DISABLE"] = "0"  # Keep TorchDynamo enabled but with better config
 
 # Define the Alpaca prompt template components - REMOVING THESE
 # This can be customized
