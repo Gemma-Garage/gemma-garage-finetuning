@@ -34,39 +34,38 @@ jobs:
             --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_SERVICE=${{ env.SERVICE }} \
             --project ${{ env.PROJECT_ID }}
 
-      - name: 'Deploy initial Cloud Run Job'
+      - name: 'Generate Cloud Run Job YAML'
         run: |
-          gcloud beta run jobs deploy ${{ env.SERVICE }} \
-            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }} \
-            --region ${{ env.REGION }} \
-            --cpu 8 \
-            --memory 32Gi \
-            --gpu 1 \
-            --gpu-type nvidia-l4 \
-            --task-timeout 3600s \
-            --max-retries 1
+          cat > job.yaml <<EOF
+          apiVersion: run.googleapis.com/v1
+          kind: Job
+          metadata:
+            name: ${SERVICE}
+            labels:
+              cloud.googleapis.com/location: ${REGION}
+            annotations:
+              run.googleapis.com/launch-stage: BETA
+          spec:
+            template:
+              metadata:
+                annotations:
+                  run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+              spec:
+                template:
+                  spec:
+                    containers:
+                    - image: gcr.io/${PROJECT_ID}/${SERVICE}
+                      limits:
+                        cpu: "8"
+                        memory: "32Gi"
+                        nvidia.com/gpu: "1"
+                    nodeSelector:
+                      run.googleapis.com/accelerator: nvidia-l4
+          EOF
 
-      - name: 'Install yq'
+      - name: 'Deploy Cloud Run Job with GPU'
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-
-      - name: 'Patch Cloud Run Job with GPU Annotations'
-        run: |
-          # Export current job config to YAML
-          gcloud run jobs describe ${{ env.SERVICE }} \
-            --region ${{ env.REGION }} \
-            --format export > job.yaml
-
-          # Add required annotations
-          yq -i '
-            .metadata.annotations["run.googleapis.com/launch-stage"]="BETA" |
-            .spec.template.metadata.annotations["run.googleapis.com/gpu-zonal-redundancy-disabled"]="true"
-          ' job.yaml
-
-          # Replace job with modified YAML
-          gcloud run jobs replace job.yaml
-
+          gcloud run jobs replace job.yaml --region ${{ env.REGION }}
 
 # # name: 'Deploy to Cloud Run from Source'
 
