@@ -4,6 +4,8 @@ metadata:
   name: llm-garage-finetune
   labels:
     cloud.googleapis.com/location: us-central1
+  annotations:
+    run.googleapis.com/launch-stage: BETA
 spec:
   template:
     metadata:
@@ -11,7 +13,6 @@ spec:
         run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
     spec:
       template:
-        metadata: {}        # optional, can leave empty
         spec:
           containers:
             - name: llm-garage-finetune
@@ -24,4 +25,5 @@ spec:
           nodeSelector:
             run.googleapis.com/accelerator: nvidia-l4
           maxRetries: 1
-          timeout: 3600s      # task timeout
+          timeoutSeconds: 3600
+
