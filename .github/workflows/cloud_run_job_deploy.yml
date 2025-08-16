@@ -34,35 +34,6 @@ jobs:
             --substitutions _HF_TOKEN=${{ secrets.HF_TOKEN }},_SERVICE=${{ env.SERVICE }} \
             --project ${{ env.PROJECT_ID }}
 
-      - name: 'Generate Cloud Run Job YAML'
-        run: |
-          cat > job.yaml <<EOF
-          apiVersion: run.googleapis.com/v1
-          kind: Job
-          metadata:
-            name: ${SERVICE}
-            labels:
-              cloud.googleapis.com/location: ${REGION}
-            annotations:
-              run.googleapis.com/launch-stage: BETA
-          spec:
-            template:
-              metadata:
-                annotations:
-                  run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
-              spec:
-                template:
-                  spec:
-                    containers:
-                    - image: gcr.io/${PROJECT_ID}/${SERVICE}
-                      limits:
-                        cpu: "8"
-                        memory: "32Gi"
-                        nvidia.com/gpu: "1"
-                    nodeSelector:
-                      run.googleapis.com/accelerator: nvidia-l4
-          EOF
-
       - name: 'Deploy Cloud Run Job with GPU'
         run: |
           gcloud run jobs replace job.yaml --region ${{ env.REGION }}

@@ -1,0 +1,27 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: llm-garage-finetune
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+    spec:
+      template:
+        metadata: {}        # optional, can leave empty
+        spec:
+          containers:
+            - name: llm-garage-finetune
+              image: gcr.io/llm-garage/llm-garage-finetune
+              resources:
+                limits:
+                  cpu: "8"
+                  memory: "32Gi"
+                  nvidia.com/gpu: "1"
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4
+          maxRetries: 1
+          timeout: 3600s      # task timeout
