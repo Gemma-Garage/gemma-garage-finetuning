@@ -44,8 +44,9 @@ jobs:
             --gpu-type nvidia-l4 \
             --memory 32Gi \
             --task-timeout 3600s \
-            --max-retries 1
-    
+            --max-retries 1 \
+            --annotations run.googleapis.com/gpu-zonal-redundancy-disabled=true,run.googleapis.com/launch-stage=BETA
+
     #Change policy so service is publicly accessible
       - name: 'Set IAM Policy for Cloud Run'
         run: |
