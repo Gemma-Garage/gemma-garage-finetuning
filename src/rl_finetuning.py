@@ -572,8 +572,8 @@ class RLFinetuningEngine(UnslothFineTuningEngine):
             bias="none",    # Bias type for LoRA. Can be 'none', 'all' or 'lora_only'
             use_gradient_checkpointing=True, # True or "unsloth" for Unsloth version, helps with memory
             random_state=3407,
-            use_rslora=False, # We support rank stabilized LoRA
-            loftq_config=None, # And LoftQ
+            use_rslora=False,
+            loftq_config=None,
         )
         print("PEFT model configured with LoRA for RL training.")
 

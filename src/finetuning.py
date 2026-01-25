@@ -23,7 +23,7 @@ import math # For math.floor
 
 
 #path
-WEIGHTS_PATH = './weights/weights.pth' # This might be less relevant if all outputs go to GCS output_dir
+WEIGHTS_PATH = './weights/weights.pth'
 
 class CloudLoggingCallback(TrainerCallback):
     def __init__(self, cloud_logger, request_id: str): # Add request_id for context if needed
@@ -96,7 +96,7 @@ class FineTuningEngine:
         print(f"Loading dataset from: {dataset_path}")
         # load_dataset can directly handle GCS paths if gcsfs is installed (usually is in Vertex AI env)
         dataset = load_dataset(file_extension, data_files=dataset_path, split="train")
-        self.datasets.append(dataset) # This logic might need review if only one dataset is used
+        self.datasets.append(dataset)
         return dataset
 
     def set_lora_fine_tuning(self, 
@@ -203,7 +203,6 @@ class FineTuningEngine:
     def perform_fine_tuning(self, update_callback=None): # update_callback not used
 
         if self.trainer is None:
-            # This should not happen if set_lora_fine_tuning was called
             print("Error! Trainer not initialized before perform_fine_tuning.")
             self.cloud_logger.log_struct({
                 "message": "Error: Trainer not initialized.",
@@ -306,9 +305,6 @@ if __name__ == "__main__":
         print(f"Error during fine-tuning for request_id {args.request_id}: {e}")
         # Optionally, log this critical failure to the custom log stream if engine is initialized
         try:
-            # Attempt to get a logger instance even if full engine init failed,
-            # or use a global logger if defined.
-            # This is a best-effort error log.
             error_log_client = cloud_logging.Client(project=args.project_id if args.project_id else "llm-garage")
             error_logger_name = f"gemma_garage_job_logs_{args.request_id}" if args.request_id else "gemma_garage_job_logs_unknown_request"
             error_logger = error_log_client.logger(error_logger_name)

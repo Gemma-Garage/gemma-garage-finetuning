@@ -34,8 +34,7 @@ LOAD_IN_4BIT = True # Use 4bit quantization to reduce memory usage. Can be False
 # Additional configurations to prevent recompilation issues
 os.environ["TORCH_LOGS"] = "recompiles"  # Monitor recompilations
 
-# Define the Alpaca prompt template components - REMOVING THESE
-# This can be customized
+# Alpaca prompt template (commented out)
 # PROMPT_TEMPLATE_WITH_INPUT = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 #
 # ### Instruction:
@@ -155,7 +154,7 @@ class UnslothFineTuningEngine:
         print(f"Loading dataset from: {dataset_path}")
         # load_dataset can directly handle GCS paths if gcsfs is installed (usually is in Vertex AI env)
         dataset = load_dataset(file_extension, data_files=dataset_path, split="train")
-        self.datasets.append(dataset) # This logic might need review if only one dataset is used
+        self.datasets.append(dataset)
         return dataset
     
     def format_for_gemma3_chat(data, system_prompt="You are a helpful assistant."):
@@ -337,8 +336,8 @@ class UnslothFineTuningEngine:
             bias = "none",    # Bias type for LoRA. Can be 'none', 'all' or 'lora_only'
             use_gradient_checkpointing = True, # True or "unsloth" for Unsloth version, helps with memory
             random_state = 3407,
-            use_rslora = False, # We support rank stabilized LoRA
-            loftq_config = None, # And LoftQ
+            use_rslora = False,
+            loftq_config = None,
         )
         print("PEFT model configured with LoRA.")
         print(f"train_with_unsloth called with num_train_epochs: {num_train_epochs}")

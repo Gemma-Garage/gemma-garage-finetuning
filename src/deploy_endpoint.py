@@ -33,5 +33,5 @@ deployed_model = model.deploy(
     machine_type=MACHINE_TYPE,
 )
 
-print("✅ Model deployed and ready for predictions!")
+print("Model deployed and ready for predictions!")
 print(f"Endpoint resource name: {endpoint.resource_name}")
