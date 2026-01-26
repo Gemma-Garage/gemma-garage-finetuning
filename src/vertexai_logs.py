@@ -102,15 +102,3 @@ while True:
 
 PROJECT_ID = "llm-garage" 
 
-# time.sleep(10)  # Wait for a few seconds before checking the job status
-# # If you still have `job` from run(sync=False), use it directly
-# while True:
-#     job._sync_gca_resource()  # Refresh the state of the job from Vertex AI
-#     state = job.state
-#     print(f"Custom job state: {state.name}")
-
-#     if state.name in ("PIPELINE_STATE_RUNNING", "PIPELINE_STATE_SUCCEEDED", "JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED"):
-#         print(f"Training job completed with state: {state.name}")
-#         break
-
-#     time.sleep(10)

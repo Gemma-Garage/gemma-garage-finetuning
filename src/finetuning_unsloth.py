@@ -1,10 +1,9 @@
+"""Unsloth fine-tuning engine - LoRA training with Cloud Logging"""
+
 import os
-
-# Disable TorchDynamo to prevent recompilation issues
 os.environ["TORCHDYNAMO_DISABLE"] = "1"
-
-#We need this to track training progress and log it to Google Cloud Logging
 os.environ["UNSLOTH_RETURN_LOGITS"] = "1"
+
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template
 
@@ -26,33 +25,12 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 
-# Gemma-specific configurations (can be adjusted)
-MAX_SEQ_LENGTH = 2048 # Choose any! We auto support RoPE Scaling internally!
-DTYPE = None # None for auto detection. Float16 for Tesla T4, V100, Bfloat16 for Ampere+
-LOAD_IN_4BIT = True # Use 4bit quantization to reduce memory usage. Can be False.
+MAX_SEQ_LENGTH = 2048
+DTYPE = None  # auto-detect
+LOAD_IN_4BIT = True
 
-# Additional configurations to prevent recompilation issues
-os.environ["TORCH_LOGS"] = "recompiles"  # Monitor recompilations
+os.environ["TORCH_LOGS"] = "recompiles"
 
-# Alpaca prompt template (commented out)
-# PROMPT_TEMPLATE_WITH_INPUT = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-#
-# ### Instruction:
-# {}
-#
-# ### Input:
-# {}
-#
-# ### Response:
-# {}"""
-#
-# PROMPT_TEMPLATE_WITHOUT_INPUT = """Below is an instruction that describes a task. Write a response that appropriately completes the request.
-#
-# ### Instruction:
-# {}
-#
-# ### Response:
-# {}"""
 
 def upload_to_gcs(local_dir, gcs_path):
     bucket_name, *blob_path = gcs_path.replace("gs://", "").split("/", 1)
@@ -128,14 +106,12 @@ class UnslothFineTuningEngine:
         self.model_name = model_name
         self.request_id = request_id # Store request_id
         self.trainer = None
-        # self.weights_path = WEIGHTS_PATH # Less relevant, main output is output_dir_for_results
         self.output_dir_for_results = None
         self.tokenizer = None
         
         # Initialize Google Cloud Logging client and logger with custom log name
         self.cloud_logger_client = cloud_logging.Client(project=project_id)
-        # self.cloud_logger_client.setup_logging() # setup_logging() is for standard Python logging integration
-        
+
         # Construct the custom log name using request_id
         # This MUST match the convention in gemma-garage-backend/finetuning/vertexai.py
         self.log_name = f"gemma_garage_job_logs_{self.request_id}"
